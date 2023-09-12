@@ -11,7 +11,7 @@
  
 // export default App
 
-import { useCounterStore } from '@/stores/app.store'
+import { useCounterStore } from '@/store/app'
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 
 export default function App() {
