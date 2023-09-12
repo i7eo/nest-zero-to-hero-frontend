@@ -11,12 +11,23 @@
  
 // export default App
 
+import { useCounterStore } from '@/stores/app.store'
 import { Routes, Route, Outlet, Link } from "react-router-dom";
 
 export default function App() {
+  const { counter, decreaseCounter, increaseCounter } = useCounterStore();
+
   return (
     <div>
       <h1>Basic Example</h1>
+
+      <div style={{
+        display: 'flex',
+      }}>
+        <button onClick={decreaseCounter}>-</button>
+        <div style={{ marginRight: 20, marginLeft: 20 }}>Counter: {counter}</div>
+        <button onClick={increaseCounter}>+</button>
+      </div>
 
       <p>
         This example demonstrates some of the core features of React Router
