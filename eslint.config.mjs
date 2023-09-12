@@ -249,10 +249,11 @@ export default [
        // eslint-plugin-eslint-comments
        'eslint-comments/disable-enable-pair': ['error', { allowWholeFile: true }],
   
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      // 'react-refresh/only-export-components': [
+      //   'warn',
+      //   { allowConstantExport: true },
+      // ],
+      'react-refresh/only-export-components': 'off',
     },
   })
 ];

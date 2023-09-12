@@ -1,5 +1,4 @@
 import { Link, Outlet, Route, Routes } from 'react-router-dom'
-import clsx from 'clsx'
 import { useCounterStore } from '@/stores/global.store'
 import { ThemeProvider } from '@/components/theme-provider'
 // import { DataTableDemo } from '@/components/data-table'
@@ -12,8 +11,6 @@ export default function App() {
       <div>
         <h1>Basic Example</h1>
         {/* <DataTableDemo /> */}
-
-        <button className={clsx('bg-sky-700 px-4 py-2 text-white hover:bg-sky-800 sm:px-8 sm:py-3')}>123</button>
 
         <div
           style={{
