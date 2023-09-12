@@ -1,10 +1,11 @@
+import { Link, Outlet, Route, Routes } from 'react-router-dom'
+import clsx from 'clsx'
 import { useCounterStore } from '@/stores/global.store'
-import { Routes, Route, Outlet, Link } from "react-router-dom";
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from '@/components/theme-provider'
 // import { DataTableDemo } from '@/components/data-table'
 
 export default function App() {
-  const { counter, decreaseCounter, increaseCounter } = useCounterStore();
+  const { counter, decreaseCounter, increaseCounter } = useCounterStore()
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -12,20 +13,22 @@ export default function App() {
         <h1>Basic Example</h1>
         {/* <DataTableDemo /> */}
 
-        <div style={{
-          display: 'flex',
-        }}>
+        <button className={clsx('bg-sky-700 px-4 py-2 text-white hover:bg-sky-800 sm:px-8 sm:py-3')}>123</button>
+
+        <div
+          style={{
+            display: 'flex',
+          }}
+        >
           <button onClick={decreaseCounter}>-</button>
           <div style={{ marginRight: 20, marginLeft: 20 }}>Counter: {counter}</div>
           <button onClick={increaseCounter}>+</button>
         </div>
 
         <p>
-          This example demonstrates some of the core features of React Router
-          including nested <code>&lt;Route&gt;</code>s,{" "}
-          <code>&lt;Outlet&gt;</code>s, <code>&lt;Link&gt;</code>s, and using a
-          "*" route (aka "splat route") to render a "not found" page when someone
-          visits an unrecognized URL.
+          This example demonstrates some of the core features of React Router including nested{' '}
+          <code>&lt;Route&gt;</code>s, <code>&lt;Outlet&gt;</code>s, <code>&lt;Link&gt;</code>s, and using a "*" route
+          (aka "splat route") to render a "not found" page when someone visits an unrecognized URL.
         </p>
 
         {/* Routes nest inside one another. Nested route paths build upon
@@ -45,7 +48,7 @@ export default function App() {
         </Routes>
       </div>
     </ThemeProvider>
-  );
+  )
 }
 
 function Layout() {
@@ -77,7 +80,7 @@ function Layout() {
           the child routes we defined above. */}
       <Outlet />
     </div>
-  );
+  )
 }
 
 function Home() {
@@ -85,7 +88,7 @@ function Home() {
     <div>
       <h2>Home</h2>
     </div>
-  );
+  )
 }
 
 function About() {
@@ -93,7 +96,7 @@ function About() {
     <div>
       <h2>About</h2>
     </div>
-  );
+  )
 }
 
 function Dashboard() {
@@ -101,7 +104,7 @@ function Dashboard() {
     <div>
       <h2>Dashboard</h2>
     </div>
-  );
+  )
 }
 
 function NoMatch() {
@@ -112,5 +115,5 @@ function NoMatch() {
         <Link to="/">Go to the home page</Link>
       </p>
     </div>
-  );
+  )
 }
