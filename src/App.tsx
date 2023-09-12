@@ -1,58 +1,50 @@
-// import { ThemeProvider } from "@/components/theme-provider"
-// import { DataTableDemo } from '@/components/data-table'
- 
-// function App() {
-//   return (
-//     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-//       <DataTableDemo />
-//     </ThemeProvider>
-//   )
-// }
- 
-// export default App
-
-import { useCounterStore } from '@/store/app'
+import { useCounterStore } from '@/stores/global.store'
 import { Routes, Route, Outlet, Link } from "react-router-dom";
+import { ThemeProvider } from "@/components/theme-provider"
+// import { DataTableDemo } from '@/components/data-table'
 
 export default function App() {
   const { counter, decreaseCounter, increaseCounter } = useCounterStore();
 
   return (
-    <div>
-      <h1>Basic Example</h1>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <div>
+        <h1>Basic Example</h1>
+        {/* <DataTableDemo /> */}
 
-      <div style={{
-        display: 'flex',
-      }}>
-        <button onClick={decreaseCounter}>-</button>
-        <div style={{ marginRight: 20, marginLeft: 20 }}>Counter: {counter}</div>
-        <button onClick={increaseCounter}>+</button>
+        <div style={{
+          display: 'flex',
+        }}>
+          <button onClick={decreaseCounter}>-</button>
+          <div style={{ marginRight: 20, marginLeft: 20 }}>Counter: {counter}</div>
+          <button onClick={increaseCounter}>+</button>
+        </div>
+
+        <p>
+          This example demonstrates some of the core features of React Router
+          including nested <code>&lt;Route&gt;</code>s,{" "}
+          <code>&lt;Outlet&gt;</code>s, <code>&lt;Link&gt;</code>s, and using a
+          "*" route (aka "splat route") to render a "not found" page when someone
+          visits an unrecognized URL.
+        </p>
+
+        {/* Routes nest inside one another. Nested route paths build upon
+              parent route paths, and nested route elements render inside
+              parent route elements. See the note about <Outlet> below. */}
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="about" element={<About />} />
+            <Route path="dashboard" element={<Dashboard />} />
+
+            {/* Using path="*"" means "match anything", so this route
+                  acts like a catch-all for URLs that we don't have explicit
+                  routes for. */}
+            <Route path="*" element={<NoMatch />} />
+          </Route>
+        </Routes>
       </div>
-
-      <p>
-        This example demonstrates some of the core features of React Router
-        including nested <code>&lt;Route&gt;</code>s,{" "}
-        <code>&lt;Outlet&gt;</code>s, <code>&lt;Link&gt;</code>s, and using a
-        "*" route (aka "splat route") to render a "not found" page when someone
-        visits an unrecognized URL.
-      </p>
-
-      {/* Routes nest inside one another. Nested route paths build upon
-            parent route paths, and nested route elements render inside
-            parent route elements. See the note about <Outlet> below. */}
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="about" element={<About />} />
-          <Route path="dashboard" element={<Dashboard />} />
-
-          {/* Using path="*"" means "match anything", so this route
-                acts like a catch-all for URLs that we don't have explicit
-                routes for. */}
-          <Route path="*" element={<NoMatch />} />
-        </Route>
-      </Routes>
-    </div>
+    </ThemeProvider>
   );
 }
 
