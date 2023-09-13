@@ -48,7 +48,6 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
-    "globals": "^13.21.0",
     "jsonc-eslint-parser": "^2.3.0",
     "postcss": "^8.4.29",
     "prettier": "^3.0.3",

@@ -1,4 +1,5 @@
 import { Link, Outlet, Route, Routes } from 'react-router-dom'
+import { cn } from './utils/shadcn-ui.util'
 import { useCounterStore } from '@/stores/global.store'
 import { ThemeProvider } from '@/components/theme-provider'
 // import { DataTableDemo } from '@/components/data-table'
@@ -12,20 +13,32 @@ export default function App() {
         <h1>Basic Example</h1>
         {/* <DataTableDemo /> */}
 
+        <button
+          className={cn(
+            'bg-sky-700 px-4 py-2 text-white hover:bg-sky-800 sm:px-8 sm:py-3',
+          )}
+        >
+          123
+        </button>
+
         <div
           style={{
             display: 'flex',
           }}
         >
           <button onClick={decreaseCounter}>-</button>
-          <div style={{ marginRight: 20, marginLeft: 20 }}>Counter: {counter}</div>
+          <div style={{ marginRight: 20, marginLeft: 20 }}>
+            Counter: {counter}
+          </div>
           <button onClick={increaseCounter}>+</button>
         </div>
 
         <p>
-          This example demonstrates some of the core features of React Router including nested{' '}
-          <code>&lt;Route&gt;</code>s, <code>&lt;Outlet&gt;</code>s, <code>&lt;Link&gt;</code>s, and using a "*" route
-          (aka "splat route") to render a "not found" page when someone visits an unrecognized URL.
+          This example demonstrates some of the core features of React Router
+          including nested <code>&lt;Route&gt;</code>s,{' '}
+          <code>&lt;Outlet&gt;</code>s, <code>&lt;Link&gt;</code>s, and using a
+          "*" route (aka "splat route") to render a "not found" page when
+          someone visits an unrecognized URL.
         </p>
 
         {/* Routes nest inside one another. Nested route paths build upon
