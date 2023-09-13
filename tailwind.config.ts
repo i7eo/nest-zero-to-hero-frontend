@@ -1,4 +1,5 @@
 import tailwindcssAnimate from 'tailwindcss-animate'
+import tailwindcssAspectRatio from '@tailwindcss/aspect-ratio'
 import type { Config } from 'tailwindcss'
 
 export default {
@@ -58,6 +59,10 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      aspectRatio: {
+        '4/3': '4 / 3',
+        '3/4': '3 / 4',
+      },
       keyframes: {
         'accordion-down': {
           from: { height: '0' },
@@ -74,5 +79,5 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [tailwindcssAspectRatio, tailwindcssAnimate],
 } satisfies Config
