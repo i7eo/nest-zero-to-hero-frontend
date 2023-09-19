@@ -8,4 +8,4 @@ const useStateRef = <T>(val: T) => {
   return result
 }
 
-export { useStateRef }
+export default useStateRef

@@ -7,7 +7,7 @@ import DefaultLayout from '@/layout/default/default.layout'
 const HomePage = lazy(() => import('@/view/home/home.page'))
 const AboutPage = lazy(() => import('@/view/about.page'))
 const UsersPage = lazy(() => import('@/view/user/user.page'))
-const ErrorPage = lazy(() => import('@/view/error.page'))
+const ErrorPage = lazy(() => import('@/router/error.page'))
 
 const LoginPage = lazy(() => import('@/view/login.page'))
 const RegisterPage = lazy(() => import('@/view/register.page'))
@@ -28,24 +28,6 @@ const router = createBrowserRouter([
   //   element: <Navigate to="/404" />,
   //   errorElement: <ErrorPage />,
   // },
-  {
-    path: '/login',
-    element: (
-      <Suspense fallback={<>loading Login</>}>
-        <LoginPage />
-      </Suspense>
-    ),
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: '/register',
-    element: (
-      <Suspense fallback={<>loading Register</>}>
-        <RegisterPage />
-      </Suspense>
-    ),
-    errorElement: <ErrorPage />,
-  },
   {
     path: '/login',
     element: (

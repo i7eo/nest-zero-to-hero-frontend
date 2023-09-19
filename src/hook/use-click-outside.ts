@@ -1,6 +1,6 @@
 import { useCallback, useLayoutEffect, useRef } from 'react'
 
-import { useStateRef } from './use-state-ref'
+import useStateRef from './use-state-ref'
 
 const useClickOutSide = <T extends HTMLElement>(
   inSide?: () => void,
@@ -41,4 +41,4 @@ const useClickOutSide = <T extends HTMLElement>(
   return targetRef
 }
 
-export { useClickOutSide }
+export default useClickOutSide
