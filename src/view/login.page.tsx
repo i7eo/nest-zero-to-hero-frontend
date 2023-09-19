@@ -54,7 +54,9 @@ function LoginForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn('w-[450px] space-y-4 rounded-lg border p-4 shadow-sm')}
+        className={cn(
+          'w-10/12 space-y-4 rounded-lg border p-4 shadow-sm sm:w-6/12 lg:w-4/12 xl:w-[500px]',
+        )}
       >
         <FormField
           control={form.control}
