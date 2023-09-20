@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useCountStore } from '@/store/app.store'
 import { useDataStore } from '@/store/datasource.store'
 
-import { useClickOutSide } from '@/hook/use-click-outside'
+import useClickOutSide from '@/hook/use-click-outside'
 
 const UsersPage: React.FC = () => {
   const zustandCount = useCountStore((state) => state.count)

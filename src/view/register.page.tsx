@@ -89,7 +89,7 @@ function LoginForm() {
         <div className={cn('flex flex-col gap-4')}>
           <Button
             type="submit"
-            className={cn('bg-indigo-500 hover:bg-indigo-600')}
+            className={cn('bg-indigo-600 hover:bg-indigo-500')}
           >
             注册
           </Button>
