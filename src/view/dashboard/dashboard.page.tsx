@@ -14,7 +14,7 @@ const HomePage: React.FC = () => {
   useEffect(() => console.log('componentDidMount and count-Update'), [count])
 
   return (
-    <>
+    <section className="page-dashboard p-4">
       <h2>Home</h2>
 
       <ReactLogo />
@@ -54,7 +54,7 @@ const HomePage: React.FC = () => {
       <p>
         Edit <code>Home.tsx</code> and save to test HMR updates.
       </p>
-    </>
+    </section>
   )
 }
 

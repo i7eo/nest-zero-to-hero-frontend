@@ -7,7 +7,7 @@ type Props = {}
 
 const DefaultLayout: React.FC<Props> = () => {
   return (
-    <section className="flex">
+    <section className="flex h-full">
       <SiderBar />
       <Content children={<Outlet />} />
     </section>

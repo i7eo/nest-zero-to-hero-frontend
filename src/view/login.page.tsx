@@ -3,7 +3,7 @@ import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 // import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -44,6 +44,8 @@ function LoginForm() {
   // console.log(error)
   // console.log(isLoading)
 
+  const navigate = useNavigate()
+
   const { trigger } = useSWRMutation('/api/v1/login', sendRequest)
 
   // 1. Define your form.
@@ -64,6 +66,7 @@ function LoginForm() {
     console.log(values)
 
     trigger(values)
+    navigate('/')
   }
 
   return (

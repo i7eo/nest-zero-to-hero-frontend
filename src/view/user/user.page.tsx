@@ -5,7 +5,7 @@ import { useDataStore } from '@/store/datasource.store'
 
 import useClickOutSide from '@/hook/use-click-outside'
 
-const UsersPage: React.FC = () => {
+const UserPage: React.FC = () => {
   const zustandCount = useCountStore((state) => state.count)
   const dataState = useDataStore()
 
@@ -40,4 +40,4 @@ const UsersPage: React.FC = () => {
   )
 }
 
-export default UsersPage
+export default UserPage
