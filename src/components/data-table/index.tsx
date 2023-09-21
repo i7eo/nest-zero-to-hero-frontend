@@ -193,7 +193,7 @@ export function DataTableDemo() {
   })
 
   return (
-    <div className="w-full">
+    <div className="flex h-full w-full flex-col">
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter emails..."
@@ -230,7 +230,7 @@ export function DataTableDemo() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <div className="grow rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

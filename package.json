@@ -10,7 +10,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "cross-env ESLINT_USE_FLAT_CONFIG=true eslint -c eslint.config.mjs . **/*.{ts,tsx} --report-unused-disable-directives --max-warnings 0",
-    "prettier": "prettier --write \"**/*.{ts,jsx,tsx,md,json}\""
+    "prettier": "prettier --write \"**/*.{ts,jsx,tsx,md,json}\"",
+    "build:tailwind": "tailwindcss -i ./src/style/app.style.css -o ./index.css --minify"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.1",
@@ -23,6 +24,7 @@
     "@tanstack/react-table": "^8.10.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "immer": "^10.0.2",
     "lucide-react": "^0.276.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -63,6 +65,7 @@
     "stylelint": "^15.10.3",
     "stylelint-config-standard": "^34.0.0",
     "stylelint-order": "^6.0.3",
+    "tsx": "^3.12.10",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
     "yaml-eslint-parser": "^1.2.2"

@@ -1,3 +1,4 @@
+import { ModeToggle } from '@/components/mode-toggle'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -6,31 +7,15 @@ const Main: React.FC<React.PropsWithChildren> = (props) => {
 
   return (
     <main className="flex grow flex-col">
-      <nav className="flex items-center justify-end border-b border-zinc-200 px-4 py-2 dark:border-zinc-800">
+      <nav className="flex items-center justify-end border-b p-4">
         <div className="flex items-center space-x-4">
           <div>
             <Input type="text" placeholder="search..." />
           </div>
+          <ModeToggle />
           <Button size="icon" variant="ghost">
             <svg
-              className=" h-5 w-5 text-zinc-500 dark:text-zinc-400"
-              fill="none"
-              height="24"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-            </svg>
-            <span className="sr-only">Toggle dark mode</span>
-          </Button>
-          <Button size="icon" variant="ghost">
-            <svg
-              className=" h-5 w-5 text-zinc-500 dark:text-zinc-400"
+              className="h-5 w-5"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -48,7 +33,9 @@ const Main: React.FC<React.PropsWithChildren> = (props) => {
           </Button>
         </div>
       </nav>
-      <section className="grow overflow-hidden">{children}</section>
+      <section className="flex grow flex-col overflow-hidden">
+        {children}
+      </section>
     </main>
   )
 }

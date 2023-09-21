@@ -15,6 +15,8 @@ const ErrorPage = lazy(() => import('@/router/error.page'))
 const LoginPage = lazy(() => import('@/view/login.page'))
 const RegisterPage = lazy(() => import('@/view/register.page'))
 
+const LOADING_MESSAGE = `✨ waiting to load ✨`
+
 const router = createBrowserRouter([
   {
     path: '',
@@ -34,7 +36,7 @@ const router = createBrowserRouter([
   {
     path: '/login',
     element: (
-      <Suspense fallback={<>loading Login</>}>
+      <Suspense fallback={LOADING_MESSAGE}>
         <LoginPage />
       </Suspense>
     ),
@@ -43,7 +45,7 @@ const router = createBrowserRouter([
   {
     path: '/register',
     element: (
-      <Suspense fallback={<>loading Register</>}>
+      <Suspense fallback={LOADING_MESSAGE}>
         <RegisterPage />
       </Suspense>
     ),
@@ -57,23 +59,19 @@ const router = createBrowserRouter([
       {
         path: '/dashboard',
         element: (
-          <Suspense fallback={<ContentSkeleton>loading Home</ContentSkeleton>}>
+          <Suspense
+            fallback={<ContentSkeleton>{LOADING_MESSAGE}</ContentSkeleton>}
+          >
             <DashboardPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: '/about',
-        element: (
-          <Suspense fallback={<ContentSkeleton>loading About</ContentSkeleton>}>
-            <AboutPage />
           </Suspense>
         ),
       },
       {
         path: '/user',
         element: (
-          <Suspense fallback={<ContentSkeleton>loading User</ContentSkeleton>}>
+          <Suspense
+            fallback={<ContentSkeleton>{LOADING_MESSAGE}</ContentSkeleton>}
+          >
             <UserPage />
           </Suspense>
         ),
@@ -81,7 +79,9 @@ const router = createBrowserRouter([
       {
         path: '/role',
         element: (
-          <Suspense fallback={<ContentSkeleton>loading Role</ContentSkeleton>}>
+          <Suspense
+            fallback={<ContentSkeleton>{LOADING_MESSAGE}</ContentSkeleton>}
+          >
             <RolePage />
           </Suspense>
         ),
@@ -89,8 +89,20 @@ const router = createBrowserRouter([
       {
         path: '/menu',
         element: (
-          <Suspense fallback={<ContentSkeleton>loading Menu</ContentSkeleton>}>
+          <Suspense
+            fallback={<ContentSkeleton>{LOADING_MESSAGE}</ContentSkeleton>}
+          >
             <MenuPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: '/about',
+        element: (
+          <Suspense
+            fallback={<ContentSkeleton>{LOADING_MESSAGE}</ContentSkeleton>}
+          >
+            <AboutPage />
           </Suspense>
         ),
       },
