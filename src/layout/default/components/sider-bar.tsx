@@ -15,23 +15,10 @@ const SiderBar: React.FC<Props> = (props) => {
   return (
     <aside className="sticky top-0 w-80 bg-gray-100 text-gray-800 dark:bg-background dark:text-foreground">
       <div className="flex items-center border-b p-4">
-        <Button variant="ghost">
-          <svg
-            className="mr-2 h-5 w-5"
-            fill="none"
-            height="24"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
-          </svg>
-          <span className="sr-only">Dashboard</span>
-          <h1 className="text-lg font-medium">Dashboard</h1>
+        <Button variant="ghost" className="flex items-center">
+          <Icon name="siren" className="mr-4 h-6 w-6" />
+          <span className="sr-only">i7eo Admin</span>
+          <h1 className="text-lg font-medium">i7eo Admin</h1>
         </Button>
       </div>
       <nav className="space-y-4 p-4">

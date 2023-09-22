@@ -11,7 +11,7 @@ interface IconProps extends Omit<LucideProps, 'ref'> {
   name?: string
 }
 
-function loadIcon(name: string) {
+function loadIcon(name?: string) {
   return lazy(
     () =>
       import(`../../../node_modules/lucide-react/dist/esm/icons/${name}.js`),
