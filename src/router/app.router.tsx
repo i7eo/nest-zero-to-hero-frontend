@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react'
-import { Navigate, createBrowserRouter } from 'react-router-dom'
+import { Navigate, createHashRouter } from 'react-router-dom'
 
 import DefaultLayout from '@/layout/default/default.layout'
 // import BlankLayout from '@/layout/blank/blank.layout'
@@ -17,7 +17,7 @@ const RegisterPage = lazy(() => import('@/view/register.page'))
 
 const LOADING_MESSAGE = `✨ waiting to load ✨`
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: '',
     element: <Navigate replace to={'/dashboard'} />,
