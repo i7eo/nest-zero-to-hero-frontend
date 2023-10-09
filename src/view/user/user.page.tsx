@@ -4,7 +4,8 @@
 // import { useDataStore } from '@/store/datasource.store'
 
 // import useClickOutSide from '@/hook/use-click-outside'
-import { DataTableDemo } from '@/components/data-table'
+import useSWR from 'swr'
+import { DataTable } from './components/data-table'
 
 // const UserPage: React.FC = () => {
 //   const zustandCount = useCountStore((state) => state.count)
@@ -42,7 +43,15 @@ import { DataTableDemo } from '@/components/data-table'
 // }
 
 const UserPage: React.FC = () => {
-  return <section className="page-user grow px-4">{DataTableDemo()}</section>
+  const { data, error, isLoading } = useSWR('/api/v1/users')
+  console.log(data)
+  console.log(isLoading)
+
+  return (
+    <section className="page-user grow px-4">
+      {isLoading ? <>isLoading</> : <DataTable data={data} />}
+    </section>
+  )
 }
 
 export default UserPage
