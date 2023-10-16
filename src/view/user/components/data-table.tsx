@@ -153,6 +153,7 @@ export const DataTable: React.FC<IDataTableProps> = ({ data }) => {
       },
       {
         accessorKey: 'address',
+        accessorFn: (originalRow) => originalRow.profile.address,
         header: () => <div className="text-right">Address</div>,
         cell: ({ row }) => {
           // const amount = parseFloat(row.getValue('amount'))
@@ -164,7 +165,11 @@ export const DataTable: React.FC<IDataTableProps> = ({ data }) => {
           // }).format(amount)
 
           // return <div className="text-right font-medium">{formatted}</div>
-          return <div className="text-right font-medium">{row.original.profile.address}</div>
+          return (
+            <div className="text-right font-medium">
+              {row.original.profile.address}
+            </div>
+          )
         },
       },
       {
