@@ -1,5 +1,6 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import DataTableColumnSortAction from './actions/sort'
+import DataTableRowActions from '../row-actions'
 import { Checkbox } from '@/components/ui/checkbox'
 
 export const columns: ColumnDef<any>[] = [
@@ -37,7 +38,7 @@ export const columns: ColumnDef<any>[] = [
     ),
   },
   {
-    id: "actions",
+    id: 'actions',
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ]
