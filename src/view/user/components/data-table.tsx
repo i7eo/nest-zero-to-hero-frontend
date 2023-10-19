@@ -8,6 +8,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { ArrowUpDown, Columns, MoreHorizontal, UserPlus } from 'lucide-react'
+import useSWR from 'swr'
 import CreateOrUpdateDialog from './create-or-update-dialog'
 import DeleteDialog from './delete-dialog'
 import type {
@@ -47,31 +48,51 @@ import {
 import { DialogTrigger } from '@/components/ui/dialog'
 import { AlertDialogTrigger } from '@/components/ui/alert-dialog'
 
-export interface IUser {
+export interface IDictionary {
   id: string
+  label: string
+  value: string
+}
+
+export interface IUser {
+  // id: string
   username: string
   profile: IProfile
   roles: IRole[]
 }
 
 export interface IProfile {
-  id: string
+  // id: string
   avator: string
   email: string
   address: string
-  gender: number
+  gender: string
 }
 
-export interface IRole {
-  id: string
-  name: string
-}
+// export interface IRole {
+//   // id: string
+//   label: string
+//   value: string
+// }
 
-export interface IDataTableProps {
-  data: IUser[]
-}
+export interface IRole extends Omit<IDictionary, 'id'> {}
 
-export const DataTable: React.FC<IDataTableProps> = ({ data }) => {
+export interface IDataTableProps {}
+
+export const DataTable: React.FC<IDataTableProps> = () => {
+  const { data: dictGenders, isLoading: loadingGenders } = useSWR(
+    '/api/v1/dict/genders',
+  )
+  const genders: IDictionary[] = dictGenders
+  const { data: dictRoles, isLoading: loadingRoles } =
+    useSWR('/api/v1/dict/roles')
+  const roles: IDictionary[] = dictRoles
+  const { data: result, isLoading: loadingUsers } = useSWR('/api/v1/users')
+  const users: IUser[] = result
+  console.log(genders, roles, users)
+
+  const isLoaded = !loadingUsers && !loadingGenders && !loadingRoles
+
   const columns = React.useMemo<ColumnDef<IUser>[]>(
     () => [
       {
@@ -105,19 +126,32 @@ export const DataTable: React.FC<IDataTableProps> = ({ data }) => {
       {
         accessorKey: 'roles',
         accessorFn: (originalRow) => originalRow.roles,
-        header: 'Roles',
-        cell: ({ row }) => (
-          <div className="lowercase">
-            {row.original.roles.map((role) => role.name).join(',')}
-          </div>
-        ),
+        header: 'Role',
+        cell: ({ row }) => {
+          const roleValues = row.original.roles.map((role) => role.value)
+
+          return (
+            <div className="lowercase">
+              {roles
+                .filter((role) => roleValues.includes(role.value))
+                .map((role) => role.label)
+                .join(', ')}
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'gender',
         accessorFn: (originalRow) => originalRow.profile.gender,
         header: 'Gender',
         cell: ({ row }) => (
-          <div className="lowercase">{row.original.profile.gender}</div>
+          <div className="lowercase">
+            {
+              genders.find(
+                (gender) => gender.value === row.original.profile.gender,
+              )!.label
+            }
+          </div>
         ),
       },
       {
@@ -176,7 +210,12 @@ export const DataTable: React.FC<IDataTableProps> = ({ data }) => {
           // const payment = row.original
 
           return (
-            <CreateOrUpdateDialog>
+            <CreateOrUpdateDialog
+              type={'update'}
+              user={{ ...row.original }}
+              genders={genders}
+              roles={roles}
+            >
               <DeleteDialog>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -211,7 +250,7 @@ export const DataTable: React.FC<IDataTableProps> = ({ data }) => {
         },
       },
     ],
-    [],
+    [genders, roles],
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -222,7 +261,7 @@ export const DataTable: React.FC<IDataTableProps> = ({ data }) => {
   const [rowSelection, setRowSelection] = React.useState({})
 
   const table = useReactTable({
-    data,
+    data: users,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -240,7 +279,7 @@ export const DataTable: React.FC<IDataTableProps> = ({ data }) => {
     },
   })
 
-  return (
+  return isLoaded ? (
     <div className="flex h-full w-full flex-col">
       <div className="flex items-center justify-between py-4">
         <Input
@@ -252,7 +291,7 @@ export const DataTable: React.FC<IDataTableProps> = ({ data }) => {
           className="max-w-sm"
         />
         <div className="flex items-center">
-          <CreateOrUpdateDialog>
+          <CreateOrUpdateDialog type={'create'} genders={genders} roles={roles}>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -380,5 +419,7 @@ export const DataTable: React.FC<IDataTableProps> = ({ data }) => {
         </div>
       </div>
     </div>
+  ) : (
+    <>loading...</>
   )
 }

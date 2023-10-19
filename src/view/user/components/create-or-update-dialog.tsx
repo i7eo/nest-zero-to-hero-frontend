@@ -1,7 +1,18 @@
-import { useCallback, useState } from 'react'
+import {
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useFormContext } from 'react-hook-form'
+import { capitalize, merge } from 'lodash-es'
+import useSWR from 'swr'
+import { type IProfile, type IRole, type IUser , IDictionary} from './data-table'
+import type { PropsWithChildren } from 'react'
 // import useSWR from 'swr'
 // import useSWRMutation from 'swr/mutation'
 // import { Link, useNavigate } from 'react-router-dom'
@@ -28,28 +39,30 @@ import {
 } from '@/components/ui/form'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/util/shadcn-ui.util'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
-const roles = [
-  {
-    id: 1,
-    name: 'admin',
-  },
-  {
-    id: 2,
-    name: 'developer',
-  },
-] as const
+// const profileZodObject = z.object({
+//   id: z.string(),
+//   avator: z.string(),
+//   email: z.string().email({
+//     message: 'You have to enter correct email.',
+//   }),
+//   address: z.string(),
+//   gender: z.number(),
+// }) satisfies z.ZodType<IProfile>
 
-const genders = [
-  {
-    id: 0,
-    name: 'women',
-  },
-  {
-    id: 1,
-    name: 'men',
-  },
-] as const
+// const profileFormSchema = profileZodObject.omit({
+//   id: true
+// })
+
+// const roleZodObject = z.object({
+//   id: z.string(),
+//   name: z.string(),
+// }) satisfies z.ZodType<IRole>
+
+// const roleFormSchema = roleZodObject.omit({
+//   id: true
+// })
 
 const formSchema = z.object({
   username: z.string(),
@@ -59,31 +72,47 @@ const formSchema = z.object({
       message: 'You have to enter correct email.',
     }),
     address: z.string(),
-    gender: z
-      .number()
-      .array()
-      .refine((value) => value.some((item) => item), {
-        message: 'You have to select at least one role.',
-      }),
+    gender: z.string(),
   }),
   roles: z
-    .number()
-    .array()
-    .refine((value) => value.some((item) => item), {
-      message: 'You have to select at least one role.',
-    }),
-})
+    .object({
+      label: z.string(),
+      value: z.string(),
+    })
+    .array(),
+}) satisfies z.ZodType<IUser>
 
-const EditForm = () => {
+interface CreateOrUpdateFormProps extends PropsWithChildren {
+  user?: IUser
+  genders: IDictionary[]
+  roles: IDictionary[]
+}
+
+const CreateOrUpdateForm = forwardRef<
+  {
+    onSubmit(): void
+  },
+  CreateOrUpdateFormProps
+>(({ user, genders, roles }, ref) => {
+  let defaultValues: z.infer<typeof formSchema> = {
+    username: '',
+    profile: {
+      avator: '',
+      email: '',
+      address: '',
+      gender: '1',
+    },
+    roles: [],
+  }
+  if (user) {
+    defaultValues = merge(defaultValues, { ...user })
+  }
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     mode: 'onChange',
     resolver: zodResolver(formSchema),
-    // defaultValues: {
-    //   email: '',
-    //   password: '',
-    //   remember: true,
-    // },
+    defaultValues,
   })
 
   // 2. Define a submit handler.
@@ -93,9 +122,17 @@ const EditForm = () => {
     console.log(values)
   }
 
+  const handleSubmit = form.handleSubmit(onSubmit)
+
+  useImperativeHandle(ref, () => ({
+    onSubmit() {
+      handleSubmit()
+    },
+  }))
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={cn('space-y-4')}>
+      <form onSubmit={handleSubmit} className={cn('space-y-4')}>
         <FormField
           control={form.control}
           name="username"
@@ -117,40 +154,46 @@ const EditForm = () => {
           name="roles"
           render={() => (
             <FormItem>
-              <FormLabel>Roles</FormLabel>
-              {roles.map((role) => (
-                <FormField
-                  key={role.id}
-                  control={form.control}
-                  name="roles"
-                  render={({ field }) => {
-                    return (
-                      <FormItem
-                        key={role.id}
-                        className="flex flex-row items-start space-x-3 space-y-0"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(role.id)}
-                            onCheckedChange={(checked) => {
-                              return checked
-                                ? field.onChange([...field.value, role.id])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value) => value !== role.id,
-                                    ),
-                                  )
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          {role.name}
-                        </FormLabel>
-                      </FormItem>
-                    )
-                  }}
-                />
-              ))}
+              <FormLabel>Role</FormLabel>
+              <div className="flex flex-row space-x-3 space-y-0">
+                {roles.map((role) => (
+                  <FormField
+                    key={role.id}
+                    control={form.control}
+                    name="roles"
+                    render={({ field }) => {
+                      return (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={
+                                !!field.value?.find(
+                                  (value) => value.value === role.value,
+                                )
+                              }
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? field.onChange([
+                                      ...field.value,
+                                      { ...role },
+                                    ])
+                                  : field.onChange(
+                                      field.value?.filter(
+                                        (value) => value.value !== role.id,
+                                      ),
+                                    )
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            {role.label}
+                          </FormLabel>
+                        </FormItem>
+                      )
+                    }}
+                  />
+                ))}
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -158,42 +201,29 @@ const EditForm = () => {
         <FormField
           control={form.control}
           name="profile.gender"
-          render={() => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel>Gender</FormLabel>
-              {genders.map((gender) => (
-                <FormField
-                  key={gender.id}
-                  control={form.control}
-                  name="profile.gender"
-                  render={({ field }) => {
-                    return (
-                      <FormItem
-                        key={gender.id}
-                        className="flex flex-row items-start space-x-3 space-y-0"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(gender.id)}
-                            onCheckedChange={(checked) => {
-                              return checked
-                                ? field.onChange([...field.value, gender.id])
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value) => value !== gender.id,
-                                    ),
-                                  )
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          {gender.name}
-                        </FormLabel>
-                      </FormItem>
-                    )
-                  }}
-                />
-              ))}
+              <FormControl className="flex flex-row space-x-3 space-y-0">
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  {genders.map((gender) => (
+                    <FormItem
+                      key={gender.id}
+                      className="flex flex-row items-center space-x-3 space-y-0"
+                    >
+                      <FormControl>
+                        <RadioGroupItem value={gender.value} />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        {gender.label}
+                      </FormLabel>
+                    </FormItem>
+                  ))}
+                </RadioGroup>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -251,15 +281,44 @@ const EditForm = () => {
       </form>
     </Form>
   )
+})
+
+interface CreateOrUpdateDialogProps extends PropsWithChildren {
+  type: 'create' | 'update'
+  user?: z.infer<typeof formSchema>
+  genders: IDictionary[]
+  roles: IDictionary[]
 }
 
-const CreateOrUpdateDialog: React.FC<React.PropsWithChildren> = ({
+const CreateOrUpdateDialog: React.FC<CreateOrUpdateDialogProps> = ({
+  type,
+  user,
+  genders,
+  roles,
   children,
 }) => {
   const [open, setOpen] = useState(false)
-  const handleCancel = useCallback(() => {
+  const title = useMemo(() => `${capitalize(type)} User`, [type])
+  const formRef = useRef<{
+    onSubmit(): void
+  } | null>(null)
+  const memoCreateOrUpdateForm = useMemo(
+    () => (
+      <CreateOrUpdateForm
+        ref={formRef}
+        user={user}
+        genders={genders}
+        roles={roles}
+      />
+    ),
+    [formRef, user, genders, roles],
+  )
+  const handleCancel = () => {
     setOpen(false)
-  }, [])
+  }
+  const handleSave = () => {
+    formRef.current?.onSubmit()
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -267,19 +326,22 @@ const CreateOrUpdateDialog: React.FC<React.PropsWithChildren> = ({
         <Button variant="outline">Edit User</Button>
       </DialogTrigger> */}
       {children}
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Edit User</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
             Make changes here. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        {EditForm()}
+        {/* <CreateOrUpdateForm user={user} /> */}
+        {memoCreateOrUpdateForm}
         <DialogFooter>
           <Button variant={'outline'} onClick={handleCancel}>
             Cancel
           </Button>
-          <Button type="submit">Save changes</Button>
+          <Button type="submit" onClick={handleSave}>
+            Save changes
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
