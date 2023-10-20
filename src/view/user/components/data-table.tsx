@@ -57,8 +57,9 @@ export interface IDictionary {
 export interface IUser {
   // id: string
   username: string
+  password: string
   profile: IProfile
-  roles: IRole[]
+  roles: string[]
 }
 
 export interface IProfile {
@@ -71,11 +72,9 @@ export interface IProfile {
 
 // export interface IRole {
 //   // id: string
-//   label: string
+//   // label: string
 //   value: string
 // }
-
-export interface IRole extends Omit<IDictionary, 'id'> {}
 
 export interface IDataTableProps {}
 
@@ -88,7 +87,13 @@ export const DataTable: React.FC<IDataTableProps> = () => {
     useSWR('/api/v1/dict/roles')
   const roles: IDictionary[] = dictRoles
   const { data: result, isLoading: loadingUsers } = useSWR('/api/v1/users')
-  const users: IUser[] = result
+  let users: any[] = result
+  if (users) {
+    users = users.map((user: any) => ({
+      ...user,
+      roles: user.roles.map((role: any) => role.value),
+    })) as IUser[]
+  }
   console.log(genders, roles, users)
 
   const isLoaded = !loadingUsers && !loadingGenders && !loadingRoles
@@ -128,7 +133,7 @@ export const DataTable: React.FC<IDataTableProps> = () => {
         accessorFn: (originalRow) => originalRow.roles,
         header: 'Role',
         cell: ({ row }) => {
-          const roleValues = row.original.roles.map((role) => role.value)
+          const roleValues = row.original.roles
 
           return (
             <div className="lowercase">

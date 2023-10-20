@@ -11,6 +11,7 @@ import * as z from 'zod'
 import { useForm, useFormContext } from 'react-hook-form'
 import { capitalize, merge } from 'lodash-es'
 import useSWR from 'swr'
+import useSWRMutation from 'swr/mutation'
 import { type IProfile, type IRole, type IUser , IDictionary} from './data-table'
 import type { PropsWithChildren } from 'react'
 // import useSWR from 'swr'
@@ -64,8 +65,23 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 //   id: true
 // })
 
+async function sendRequest(
+  url: string,
+  { arg }: { arg: z.infer<typeof formSchema> },
+) {
+  const headers = new Headers()
+  headers.append('Content-Type', 'application/json')
+
+  return fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(arg),
+  }).then((res) => res.json())
+}
+
 const formSchema = z.object({
   username: z.string(),
+  password: z.string(),
   profile: z.object({
     avator: z.string(),
     email: z.string().email({
@@ -74,12 +90,7 @@ const formSchema = z.object({
     address: z.string(),
     gender: z.string(),
   }),
-  roles: z
-    .object({
-      label: z.string(),
-      value: z.string(),
-    })
-    .array(),
+  roles: z.string().array(),
 }) satisfies z.ZodType<IUser>
 
 interface CreateOrUpdateFormProps extends PropsWithChildren {
@@ -90,23 +101,26 @@ interface CreateOrUpdateFormProps extends PropsWithChildren {
 
 const CreateOrUpdateForm = forwardRef<
   {
-    onSubmit(): void
+    onSubmit(): Promise<void>
   },
   CreateOrUpdateFormProps
 >(({ user, genders, roles }, ref) => {
   let defaultValues: z.infer<typeof formSchema> = {
     username: '',
+    password: '',
     profile: {
       avator: '',
       email: '',
       address: '',
       gender: '1',
     },
-    roles: [],
+    roles: ['5'],
   }
   if (user) {
     defaultValues = merge(defaultValues, { ...user })
   }
+
+  const { trigger } = useSWRMutation('/api/v1/users', sendRequest)
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -116,17 +130,27 @@ const CreateOrUpdateForm = forwardRef<
   })
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values)
+    // console.log(values)
+    try {
+      const result = await trigger(values)
+      if (result) {
+        return true
+      }
+      return false
+    } catch (e) {
+      console.log(e)
+      return false
+    }
   }
 
   const handleSubmit = form.handleSubmit(onSubmit)
 
   useImperativeHandle(ref, () => ({
-    onSubmit() {
-      handleSubmit()
+    async onSubmit() {
+      await handleSubmit()
     },
   }))
 
@@ -140,11 +164,32 @@ const CreateOrUpdateForm = forwardRef<
             <FormItem>
               <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="Please enter username" {...field} />
+                <Input
+                  placeholder="Please enter username"
+                  {...field}
+                  type="email"
+                />
               </FormControl>
               {/* <FormDescription>
               This is your public display name.
             </FormDescription> */}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Please enter password"
+                  {...field}
+                  type="password"
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -167,19 +212,16 @@ const CreateOrUpdateForm = forwardRef<
                           <FormControl>
                             <Checkbox
                               checked={
-                                !!field.value?.find(
-                                  (value) => value.value === role.value,
+                                !!field.value?.some(
+                                  (value) => value === role.value,
                                 )
                               }
                               onCheckedChange={(checked) => {
                                 return checked
-                                  ? field.onChange([
-                                      ...field.value,
-                                      { ...role },
-                                    ])
+                                  ? field.onChange([...field.value, role.value])
                                   : field.onChange(
                                       field.value?.filter(
-                                        (value) => value.value !== role.id,
+                                        (value) => value !== role.value,
                                       ),
                                     )
                               }}
@@ -300,7 +342,7 @@ const CreateOrUpdateDialog: React.FC<CreateOrUpdateDialogProps> = ({
   const [open, setOpen] = useState(false)
   const title = useMemo(() => `${capitalize(type)} User`, [type])
   const formRef = useRef<{
-    onSubmit(): void
+    onSubmit(): Promise<void>
   } | null>(null)
   const memoCreateOrUpdateForm = useMemo(
     () => (
@@ -316,8 +358,9 @@ const CreateOrUpdateDialog: React.FC<CreateOrUpdateDialogProps> = ({
   const handleCancel = () => {
     setOpen(false)
   }
-  const handleSave = () => {
-    formRef.current?.onSubmit()
+  const handleSave = async () => {
+    await formRef.current?.onSubmit()
+    handleCancel()
   }
 
   return (
