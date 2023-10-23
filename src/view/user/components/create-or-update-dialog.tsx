@@ -112,7 +112,7 @@ const CreateOrUpdateForm = forwardRef<
       avator: '',
       email: '',
       address: '',
-      gender: '1',
+      gender: '0',
     },
     roles: ['5'],
   }

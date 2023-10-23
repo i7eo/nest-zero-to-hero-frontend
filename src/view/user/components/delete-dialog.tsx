@@ -9,9 +9,13 @@ import {
   AlertDialogTitle,
   // AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import useSWR from 'swr'
 // import { Button } from '@/components/ui/button'
 
 const DeleteDialog: React.FC<React.PropsWithChildren> = ({ children }) => {
+  const { data: dictGenders, isLoading: loadingGenders } = useSWR(
+    '/api/v1/users/16',
+  )
   return (
     <AlertDialog>
       {/* <AlertDialogTrigger asChild>
