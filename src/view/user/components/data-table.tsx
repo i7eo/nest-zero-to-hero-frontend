@@ -94,7 +94,7 @@ export const DataTable: React.FC<IDataTableProps> = () => {
       roles: user.roles.map((role: any) => role.value),
     })) as IUser[]
   }
-  console.log(genders, roles, users)
+  // console.log(genders, roles, users)
 
   const isLoaded = !loadingUsers && !loadingGenders && !loadingRoles
 
@@ -221,7 +221,7 @@ export const DataTable: React.FC<IDataTableProps> = () => {
               genders={genders}
               roles={roles}
             >
-              <DeleteDialog>
+              <DeleteDialog userId={row.original.id}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">

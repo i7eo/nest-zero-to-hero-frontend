@@ -12,8 +12,6 @@ import './style/app.style.css'
 const App: React.FC = () => {
   const { toast } = useToast()
 
-  new Error()
-
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       {/* <SWRConfig
@@ -33,6 +31,8 @@ const App: React.FC = () => {
         value={{
           fetcher: (resource, init) =>
             fetch(resource, init).then((res) => res.json()),
+          revalidateOnFocus: false,
+          revalidateOnReconnect: false,
           onError: (error) => {
             if (error.status !== 403 && error.status !== 404) {
               toast({
@@ -42,9 +42,7 @@ const App: React.FC = () => {
                   Please refresh page try again.
                 `,
                 action: (
-                  <ToastAction altText="Goto schedule to undo">
-                    Refresh Page
-                  </ToastAction>
+                  <ToastAction altText="Refresh Page">Refresh Page</ToastAction>
                 ),
               })
             }

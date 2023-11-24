@@ -1,3 +1,5 @@
+import { type PropsWithChildren, useState } from 'react'
+import useSWRMutation from 'swr/mutation'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,15 +11,33 @@ import {
   AlertDialogTitle,
   // AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import useSWR from 'swr'
+import { buildFetcher } from '@/util/fetcher'
 // import { Button } from '@/components/ui/button'
 
-const DeleteDialog: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const { data: dictGenders, isLoading: loadingGenders } = useSWR(
-    '/api/v1/users/16',
+interface DeleteDialogProps extends PropsWithChildren {
+  userId: string
+}
+
+const DeleteDialog: React.FC<DeleteDialogProps> = ({ userId, children }) => {
+  const [open, setOpen] = useState(false)
+  const { trigger } = useSWRMutation('/api/v1/users', (url: string) =>
+    buildFetcher('DELETE', `${url}/${userId}`),
   )
+
+  async function handleContinue() {
+    try {
+      await trigger()
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  function handleCancel() {
+    setOpen(false)
+  }
+
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       {/* <AlertDialogTrigger asChild>
         <Button variant="outline">Show Dialog</Button>
       </AlertDialogTrigger> */}
@@ -31,8 +51,10 @@ const DeleteDialog: React.FC<React.PropsWithChildren> = ({ children }) => {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogCancel onClick={handleCancel}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleContinue}>
+            Continue
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

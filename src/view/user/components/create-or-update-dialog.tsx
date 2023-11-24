@@ -12,7 +12,8 @@ import { useForm, useFormContext } from 'react-hook-form'
 import { capitalize, merge } from 'lodash-es'
 import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
-import { type IProfile, type IRole, type IUser , IDictionary} from './data-table'
+import type { IDictionary} from './data-table';
+import { type IProfile, type IRole, type IUser } from './data-table'
 import type { PropsWithChildren } from 'react'
 // import useSWR from 'swr'
 // import useSWRMutation from 'swr/mutation'
@@ -41,6 +42,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/util/shadcn-ui.util'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { buildFetcher } from '@/util/fetcher'
 
 // const profileZodObject = z.object({
 //   id: z.string(),
@@ -64,20 +66,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 // const roleFormSchema = roleZodObject.omit({
 //   id: true
 // })
-
-async function sendRequest(
-  url: string,
-  { arg }: { arg: z.infer<typeof formSchema> },
-) {
-  const headers = new Headers()
-  headers.append('Content-Type', 'application/json')
-
-  return fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(arg),
-  }).then((res) => res.json())
-}
 
 const formSchema = z.object({
   username: z.string(),
@@ -120,7 +108,11 @@ const CreateOrUpdateForm = forwardRef<
     defaultValues = merge(defaultValues, { ...user })
   }
 
-  const { trigger } = useSWRMutation('/api/v1/users', sendRequest)
+  const { trigger } = useSWRMutation(
+    '/api/v1/users',
+    (url: string, { arg }: { arg: z.infer<typeof formSchema> }) =>
+      buildFetcher('POST', url, { data: JSON.stringify(arg) }),
+  )
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({

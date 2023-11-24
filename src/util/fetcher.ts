@@ -61,7 +61,7 @@ function buildHeader(options: IBuildHeaderOptions) {
 export function buildFetcher(
   method: ApiMethod,
   url: string,
-  options: IBuildFetcherOptions,
+  options: IBuildFetcherOptions = {},
 ) {
   if (!(url && method)) return
 
