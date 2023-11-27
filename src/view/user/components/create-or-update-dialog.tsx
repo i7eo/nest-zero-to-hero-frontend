@@ -10,10 +10,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useForm, useFormContext } from 'react-hook-form'
 import { capitalize, merge } from 'lodash-es'
-import useSWR from 'swr'
+import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { IDictionary} from './data-table';
 import { type IProfile, type IRole, type IUser } from './data-table'
+import type { IDictionary} from './data-table';
 import type { PropsWithChildren } from 'react'
 // import useSWR from 'swr'
 // import useSWRMutation from 'swr/mutation'
@@ -67,6 +67,8 @@ import { buildFetcher } from '@/util/fetcher'
 //   id: true
 // })
 
+type IUserFormSchema = Omit<IUser, 'id'>
+
 const formSchema = z.object({
   username: z.string(),
   password: z.string(),
@@ -79,9 +81,10 @@ const formSchema = z.object({
     gender: z.string(),
   }),
   roles: z.string().array(),
-}) satisfies z.ZodType<IUser>
+}) satisfies z.ZodType<IUserFormSchema>
 
 interface CreateOrUpdateFormProps extends PropsWithChildren {
+  type: 'create' | 'update'
   user?: IUser
   genders: IDictionary[]
   roles: IDictionary[]
@@ -92,7 +95,7 @@ const CreateOrUpdateForm = forwardRef<
     onSubmit(): Promise<void>
   },
   CreateOrUpdateFormProps
->(({ user, genders, roles }, ref) => {
+>(({ type, user, genders, roles }, ref) => {
   let defaultValues: z.infer<typeof formSchema> = {
     username: '',
     password: '',
@@ -104,14 +107,23 @@ const CreateOrUpdateForm = forwardRef<
     },
     roles: ['5'],
   }
+  let fetchUrlSuffix = ''
+
   if (user) {
     defaultValues = merge(defaultValues, { ...user })
+    fetchUrlSuffix += user.id
   }
 
+  const fetchType = type === 'create' ? 'POST' : 'PATCH'
+  const fetchUrl = `/api/v1/users/${fetchUrlSuffix}`
+  const { mutate } = useSWRConfig()
+
   const { trigger } = useSWRMutation(
-    '/api/v1/users',
+    fetchUrl,
     (url: string, { arg }: { arg: z.infer<typeof formSchema> }) =>
-      buildFetcher('POST', url, { data: JSON.stringify(arg) }),
+      buildFetcher(fetchType, url, {
+        data: JSON.stringify(arg),
+      }),
   )
 
   // 1. Define your form.
@@ -128,6 +140,7 @@ const CreateOrUpdateForm = forwardRef<
     // console.log(values)
     try {
       const result = await trigger(values)
+      mutate('/api/v1/users')
       if (result) {
         return true
       }
@@ -319,7 +332,7 @@ const CreateOrUpdateForm = forwardRef<
 
 interface CreateOrUpdateDialogProps extends PropsWithChildren {
   type: 'create' | 'update'
-  user?: z.infer<typeof formSchema>
+  user?: IUser
   genders: IDictionary[]
   roles: IDictionary[]
 }

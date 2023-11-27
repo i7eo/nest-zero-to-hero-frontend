@@ -55,7 +55,7 @@ export interface IDictionary {
 }
 
 export interface IUser {
-  // id: string
+  id: string
   username: string
   password: string
   profile: IProfile
@@ -83,9 +83,11 @@ export const DataTable: React.FC<IDataTableProps> = () => {
     '/api/v1/dict/genders',
   )
   const genders: IDictionary[] = dictGenders
+
   const { data: dictRoles, isLoading: loadingRoles } =
     useSWR('/api/v1/dict/roles')
   const roles: IDictionary[] = dictRoles
+
   const { data: result, isLoading: loadingUsers } = useSWR('/api/v1/users')
   let users: any[] = result
   if (users) {
