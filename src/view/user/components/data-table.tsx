@@ -139,10 +139,12 @@ export const DataTable: React.FC<IDataTableProps> = () => {
 
           return (
             <div className="lowercase">
-              {roles
-                .filter((role) => roleValues.includes(role.value))
-                .map((role) => role.label)
-                .join(', ')}
+              {roles && roleValues
+                ? roles
+                    .filter((role) => roleValues.includes(role.value))
+                    .map((role) => role.label)
+                    .join(', ')
+                : null}
             </div>
           )
         },
@@ -153,11 +155,11 @@ export const DataTable: React.FC<IDataTableProps> = () => {
         header: 'Gender',
         cell: ({ row }) => (
           <div className="lowercase">
-            {
-              genders.find(
-                (gender) => gender.value === row.original.profile.gender,
-              )!.label
-            }
+            {genders && row.original.profile && row.original.profile.gender
+              ? genders.find(
+                  (gender) => gender.value === row.original.profile.gender,
+                )!.label
+              : null}
           </div>
         ),
       },
@@ -165,9 +167,10 @@ export const DataTable: React.FC<IDataTableProps> = () => {
         accessorKey: 'avator',
         accessorFn: (originalRow) => originalRow.profile.avator,
         header: 'Avator',
-        cell: ({ row }) => (
-          <div className="lowercase">{row.original.profile.avator}</div>
-        ),
+        cell: ({ row }) =>
+          row.original.profile && row.original.profile.avator ? (
+            <div className="lowercase">{row.original.profile.avator}</div>
+          ) : null,
       },
       {
         accessorKey: 'email',
@@ -185,9 +188,10 @@ export const DataTable: React.FC<IDataTableProps> = () => {
             </Button>
           )
         },
-        cell: ({ row }) => (
-          <div className="lowercase">{row.original.profile.email}</div>
-        ),
+        cell: ({ row }) =>
+          row.original.profile && row.original.profile.email ? (
+            <div className="lowercase">{row.original.profile.email}</div>
+          ) : null,
       },
       {
         accessorKey: 'address',
@@ -203,11 +207,11 @@ export const DataTable: React.FC<IDataTableProps> = () => {
           // }).format(amount)
 
           // return <div className="text-right font-medium">{formatted}</div>
-          return (
+          return row.original.profile && row.original.profile.address ? (
             <div className="text-right font-medium">
               {row.original.profile.address}
             </div>
-          )
+          ) : null
         },
       },
       {

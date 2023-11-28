@@ -12,8 +12,8 @@ import { useForm, useFormContext } from 'react-hook-form'
 import { capitalize, merge } from 'lodash-es'
 import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import { type IProfile, type IRole, type IUser } from './data-table'
 import type { IDictionary} from './data-table';
+import { type IProfile, type IRole, type IUser } from './data-table'
 import type { PropsWithChildren } from 'react'
 // import useSWR from 'swr'
 // import useSWRMutation from 'swr/mutation'
@@ -111,11 +111,11 @@ const CreateOrUpdateForm = forwardRef<
 
   if (user) {
     defaultValues = merge(defaultValues, { ...user })
-    fetchUrlSuffix += user.id
+    fetchUrlSuffix += `/${user.id}`
   }
 
   const fetchType = type === 'create' ? 'POST' : 'PATCH'
-  const fetchUrl = `/api/v1/users/${fetchUrlSuffix}`
+  const fetchUrl = `/api/v1/users${fetchUrlSuffix}`
   const { mutate } = useSWRConfig()
 
   const { trigger } = useSWRMutation(
@@ -141,6 +141,7 @@ const CreateOrUpdateForm = forwardRef<
     try {
       const result = await trigger(values)
       mutate('/api/v1/users')
+
       if (result) {
         return true
       }
@@ -353,12 +354,13 @@ const CreateOrUpdateDialog: React.FC<CreateOrUpdateDialogProps> = ({
     () => (
       <CreateOrUpdateForm
         ref={formRef}
+        type={type}
         user={user}
         genders={genders}
         roles={roles}
       />
     ),
-    [formRef, user, genders, roles],
+    [formRef, type, user, genders, roles],
   )
   const handleCancel = () => {
     setOpen(false)
