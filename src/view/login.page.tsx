@@ -22,8 +22,8 @@ const formSchema = z.object({
   email: z.string().email({
     message: '请输入正确的邮箱',
   }),
-  password: z.string().min(6, {
-    message: '密码长度至少大于6',
+  password: z.string().min(8, {
+    message: '密码长度至少大于8',
   }),
   remember: z.boolean().default(false).optional(),
 })
@@ -46,7 +46,7 @@ function LoginForm() {
 
   const navigate = useNavigate()
 
-  const { trigger } = useSWRMutation('/api/v1/login', sendRequest)
+  const { trigger } = useSWRMutation('/api/v1/auth/signin', sendRequest)
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
