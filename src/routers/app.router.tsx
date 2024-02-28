@@ -1,19 +1,19 @@
 import { Suspense, lazy } from 'react'
 import { Navigate, createHashRouter } from 'react-router-dom'
 
-import DefaultLayout from '@/layout/default/default.layout'
+import DefaultLayout from '@/layouts/default/default.layout'
 // import BlankLayout from '@/layout/blank/blank.layout'
 import ContentSkeleton from '@/components/skeleton/content.skeleton'
 
-const DashboardPage = lazy(() => import('@/view/dashboard/dashboard.page'))
-const AboutPage = lazy(() => import('@/view/about.page'))
-const UserPage = lazy(() => import('@/view/user/user.page'))
-const RolePage = lazy(() => import('@/view/role/role.page'))
-const MenuPage = lazy(() => import('@/view/menu/menu.page'))
-const ErrorPage = lazy(() => import('@/router/error.page'))
+const DashboardPage = lazy(() => import('@/views/dashboard/dashboard.page'))
+const AboutPage = lazy(() => import('@/views/about.page'))
+const UserPage = lazy(() => import('@/views/user/user.page'))
+const RolePage = lazy(() => import('@/views/role/role.page'))
+const MenuPage = lazy(() => import('@/views/menu/menu.page'))
+const ErrorPage = lazy(() => import('@/routers/error.page'))
 
-const LoginPage = lazy(() => import('@/view/login.page'))
-const RegisterPage = lazy(() => import('@/view/register.page'))
+const LoginPage = lazy(() => import('@/views/login.page'))
+const RegisterPage = lazy(() => import('@/views/register.page'))
 
 const LOADING_MESSAGE = `✨ waiting to load ✨`
 

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
 import ReactLogo from '@/components/logo'
-import { useCountStore } from '@/store/app.store'
-import { useDataDispatch, useDataStore } from '@/store/datasource.store'
+import { useCountStore } from '@/stores/app.store'
+import { useDataDispatch, useDataStore } from '@/stores/datasource.store'
 
 const HomePage: React.FC = () => {
   const countStore = useCountStore()

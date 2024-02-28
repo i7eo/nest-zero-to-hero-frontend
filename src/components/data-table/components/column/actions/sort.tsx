@@ -1,7 +1,7 @@
 import { type Column } from '@tanstack/react-table'
 
 import { ArrowDownUp, EyeOff, SortAsc, SortDesc } from 'lucide-react'
-import { cn } from '@/util/shadcn-ui.util'
+import { cn } from '@/utils/shadcn-ui.util'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,

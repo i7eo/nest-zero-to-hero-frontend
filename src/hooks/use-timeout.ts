@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 import useMemoizedFn from './use-memoized-fn'
-import { isNumber } from '@/util/type.util'
+import { isNumber } from '@/utils/type.util'
 
 const useTimeout = (fn: () => void, delay?: number) => {
   const timerCallback = useMemoizedFn(fn)

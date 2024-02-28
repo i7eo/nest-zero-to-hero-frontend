@@ -1,5 +1,5 @@
 import logo from '@/assets/logo.svg'
-import { cn } from '@/util/shadcn-ui.util'
+import { cn } from '@/utils/shadcn-ui.util'
 
 const ReactLogo: React.FC = () => (
   <>

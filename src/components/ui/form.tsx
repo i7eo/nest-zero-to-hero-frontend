@@ -4,7 +4,7 @@ import { Controller, FormProvider, useFormContext } from 'react-hook-form'
 import type * as LabelPrimitive from '@radix-ui/react-label'
 import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form'
 
-import { cn } from '@/util/shadcn-ui.util'
+import { cn } from '@/utils/shadcn-ui.util'
 import { Label } from '@/components/ui/label'
 
 const Form = FormProvider

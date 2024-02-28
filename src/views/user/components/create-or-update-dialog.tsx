@@ -40,9 +40,9 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Checkbox } from '@/components/ui/checkbox'
-import { cn } from '@/util/shadcn-ui.util'
+import { cn } from '@/utils/shadcn-ui.util'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { buildFetcher } from '@/util/fetcher'
+import { buildFetcher } from '@/utils/fetcher'
 
 // const profileZodObject = z.object({
 //   id: z.string(),

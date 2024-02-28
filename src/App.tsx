@@ -3,11 +3,11 @@ import { RouterProvider } from 'react-router-dom'
 import { SWRConfig } from 'swr'
 import { ErrorBoundary } from 'react-error-boundary'
 import { ThemeProvider } from '@/components/theme-provider'
-import { router } from '@/router/app.router'
+import { router } from '@/routers/app.router'
 import { ToastAction } from '@/components/ui/toast'
 import { useToast } from '@/components/ui/use-toast'
 
-import './style/app.style.css'
+import './styles/app.style.css'
 
 const App: React.FC = () => {
   const { toast } = useToast()

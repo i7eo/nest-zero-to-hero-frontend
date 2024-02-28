@@ -1,9 +1,9 @@
 // import { useState } from 'react'
 
-// import { useCountStore } from '@/store/app.store'
-// import { useDataStore } from '@/store/datasource.store'
+// import { useCountStore } from '@/stores/app.store'
+// import { useDataStore } from '@/stores/datasource.store'
 
-// import useClickOutSide from '@/hook/use-click-outside'
+// import useClickOutSide from '@/hooks/use-click-outside'
 import { DataTable } from './components/data-table'
 
 // const UserPage: React.FC = () => {

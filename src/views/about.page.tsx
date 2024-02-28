@@ -1,5 +1,5 @@
-import { useCountStore } from '@/store/app.store'
-import { useDataStore } from '@/store/datasource.store'
+import { useCountStore } from '@/stores/app.store'
+import { useDataStore } from '@/stores/datasource.store'
 
 const AboutPage: React.FC = () => {
   const zustandCount = useCountStore((state) => state.count)

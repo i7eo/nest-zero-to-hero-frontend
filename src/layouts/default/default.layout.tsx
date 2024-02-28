@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom'
 
 import SiderBar from './components/sider-bar'
 import Content from './components/content'
-import useMenuStore from '@/store/menu.store'
+import useMenuStore from '@/stores/menu.store'
 
 type Props = {}
 

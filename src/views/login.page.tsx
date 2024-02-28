@@ -2,6 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 // import useSWR from 'swr'
+import useSWRMutation from 'swr/mutation'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -13,25 +15,47 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/util/shadcn-ui.util'
-import useLinkBack from '@/hook/use-link-back'
+import { Checkbox } from '@/components/ui/checkbox'
+import { cn } from '@/utils/shadcn-ui.util'
 
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: '用户名长度至少大于2',
+  email: z.string().email({
+    message: '请输入正确的邮箱',
   }),
-  password: z.string().min(6, {
-    message: '密码长度至少大于6',
+  password: z.string().min(8, {
+    message: '密码长度至少大于8',
   }),
+  remember: z.boolean().default(false).optional(),
 })
 
+async function sendRequest(
+  url: string,
+  { arg }: { arg: z.infer<typeof formSchema> },
+) {
+  return fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(arg),
+  }).then((res) => res.json())
+}
+
 function LoginForm() {
+  // const { data, error, isLoading, mutate } = useSWR('/api/v1/user/list')
+  // console.log(data)
+  // console.log(error)
+  // console.log(isLoading)
+
+  const navigate = useNavigate()
+
+  const { trigger } = useSWRMutation('/api/v1/auth/signin', sendRequest)
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
+    mode: 'onChange',
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
+      email: '',
       password: '',
+      remember: true,
     },
   })
 
@@ -40,14 +64,10 @@ function LoginForm() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values)
+
+    trigger(values)
+    navigate('/')
   }
-
-  // const { data, error, isLoading } = useSWR('/api/v1/user/list')
-  // console.log(data)
-  // console.log(error)
-  // console.log(isLoading)
-
-  const linkBackFn = useLinkBack()
 
   return (
     <Form {...form}>
@@ -59,12 +79,12 @@ function LoginForm() {
       >
         <FormField
           control={form.control}
-          name="username"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>用户名</FormLabel>
+              <FormLabel>邮箱</FormLabel>
               <FormControl>
-                <Input placeholder="请输入用户名" {...field} />
+                <Input placeholder="请输入邮箱" {...field} />
               </FormControl>
               {/* <FormDescription>
                 This is your public display name.
@@ -86,15 +106,31 @@ function LoginForm() {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="remember"
+          render={({ field }) => (
+            <FormItem className={cn('inline-flex items-center justify-center')}>
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <FormLabel className={cn('!mt-0 ml-2')}>记住我</FormLabel>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <div className={cn('flex flex-col gap-4')}>
           <Button
             type="submit"
             className={cn('bg-indigo-600 hover:bg-indigo-500')}
           >
-            注册
+            登录
           </Button>
-          <Button variant={'outline'} onClick={linkBackFn}>
-            返回
+          <Button asChild variant={'outline'}>
+            <Link to={'/register'}>注册</Link>
           </Button>
         </div>
       </form>
@@ -102,7 +138,7 @@ function LoginForm() {
   )
 }
 
-const RegisterPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   return (
     <section className={cn('flex h-full items-center justify-center')}>
       <LoginForm />
@@ -110,4 +146,4 @@ const RegisterPage: React.FC = () => {
   )
 }
 
-export default RegisterPage
+export default LoginPage

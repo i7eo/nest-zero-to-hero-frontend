@@ -1,4 +1,4 @@
-import { createMiniReduxStore, useMiniReduxStore } from '@/util/mini-redux.util'
+import { createMiniReduxStore, useMiniReduxStore } from '@/utils/mini-redux.util'
 
 type State = { data: number }
 type Action = { type: 'ADD' } | { type: 'MULTIPLY'; value: number }

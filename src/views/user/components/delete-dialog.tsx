@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
   // AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { buildFetcher } from '@/util/fetcher'
+import { buildFetcher } from '@/utils/fetcher'
 // import { Button } from '@/components/ui/button'
 
 interface DeleteDialogProps extends PropsWithChildren {

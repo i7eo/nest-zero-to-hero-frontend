@@ -2,7 +2,7 @@ import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { X } from "lucide-react"
 
-import { cn } from "@/util/shadcn-ui.util"
+import { cn } from "@/utils/shadcn-ui.util"
 
 const Dialog = DialogPrimitive.Root
 
