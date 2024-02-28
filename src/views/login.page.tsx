@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -17,10 +18,15 @@ import {
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/utils/shadcn-ui.util'
+import { API__SIGNIN } from '@/apis/auth'
+import { Toast } from '@/components/ui/toast'
 
 const formSchema = z.object({
-  email: z.string().email({
-    message: '请输入正确的邮箱',
+  // email: z.string().email({
+  //   message: '请输入正确的邮箱',
+  // }),
+  username: z.string().min(4, {
+    message: '用户名长度至少大于4',
   }),
   password: z.string().min(8, {
     message: '密码长度至少大于8',
@@ -43,6 +49,7 @@ function LoginForm() {
   // console.log(data)
   // console.log(error)
   // console.log(isLoading)
+  const savedToastRef = useRef<typeof Toast | null>(null)
 
   const navigate = useNavigate()
 
@@ -53,88 +60,99 @@ function LoginForm() {
     mode: 'onChange',
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
       remember: true,
     },
   })
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values)
 
-    trigger(values)
-    navigate('/')
+    // trigger(values)
+    const result = await API__SIGNIN(values)
+    if (result && result.access_token) {
+      localStorage.setItem('Token', JSON.stringify(result))
+      savedToastRef.current?.publish()
+      navigate('/')
+    } else {
+    }
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className={cn(
-          'w-10/12 space-y-4 rounded-lg border p-4 shadow-sm sm:w-6/12 lg:w-4/12 xl:w-[500px]',
-        )}
-      >
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>邮箱</FormLabel>
-              <FormControl>
-                <Input placeholder="请输入邮箱" {...field} />
-              </FormControl>
-              {/* <FormDescription>
+    <>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className={cn(
+            'w-10/12 space-y-4 rounded-lg border p-4 shadow-sm sm:w-6/12 lg:w-4/12 xl:w-[500px]',
+          )}
+        >
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>用户名</FormLabel>
+                <FormControl>
+                  <Input placeholder="请输入用户名" {...field} />
+                </FormControl>
+                {/* <FormDescription>
                 This is your public display name.
               </FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>密码</FormLabel>
-              <FormControl>
-                <Input placeholder="请输入密码" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="remember"
-          render={({ field }) => (
-            <FormItem className={cn('inline-flex items-center justify-center')}>
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <FormLabel className={cn('!mt-0 ml-2')}>记住我</FormLabel>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className={cn('flex flex-col gap-4')}>
-          <Button
-            type="submit"
-            className={cn('bg-indigo-600 hover:bg-indigo-500')}
-          >
-            登录
-          </Button>
-          <Button asChild variant={'outline'}>
-            <Link to={'/register'}>注册</Link>
-          </Button>
-        </div>
-      </form>
-    </Form>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>密码</FormLabel>
+                <FormControl>
+                  <Input placeholder="请输入密码" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="remember"
+            render={({ field }) => (
+              <FormItem
+                className={cn('inline-flex items-center justify-center')}
+              >
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel className={cn('!mt-0 ml-2')}>记住我</FormLabel>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className={cn('flex flex-col gap-4')}>
+            <Button
+              type="submit"
+              className={cn('bg-indigo-600 hover:bg-indigo-500')}
+            >
+              登录
+            </Button>
+            <Button asChild variant={'outline'}>
+              <Link to={'/register'}>注册</Link>
+            </Button>
+          </div>
+        </form>
+      </Form>
+      <Toast ref={savedToastRef}>Login successfully!</Toast>
+    </>
   )
 }
 
