@@ -163,11 +163,10 @@ export function AxiosTransformers() {
     },
     requestInterceptors(config, options) {
       // const token = getToken()
-      const token = '12345678'
-      if (
-        token &&
-        (config as Record<string, any>)?.requestOptions?.withToken !== false
-      ) {
+      const token = localStorage.getItem('Token')
+        ? JSON.parse(localStorage.getItem('Token')!)
+        : null
+      if (token && (config as Record<string, any>)?.extraOptions?.withToken) {
         // jwt token
         ;(config as Record<string, any>).headers.Authorization = options!
           .extraAuthenticationMode
@@ -183,8 +182,7 @@ export function AxiosTransformers() {
       // const errorLogStore = useErrorLogStoreWithOut()
       // errorLogStore.addAjaxErrorInfo(error)
       const { response, code, message, config } = error || {}
-      const errorMessageMode =
-        config?.requestOptions?.errorMessageMode || 'none'
+      const errorMessageMode = config?.extraOptions?.errorMessageMode || 'none'
       const msg: string = response?.data?.error?.message ?? ''
       const err: string = error?.toString?.() ?? ''
       let errMessage = ''

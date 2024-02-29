@@ -12,8 +12,7 @@ function createAxios(opt?: Partial<AxiosOptions>) {
       {
         // See https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#authentication_schemes
         // authentication schemes，e.g: Bearer
-        // extraAuthenticationMode: 'Bearer',
-        extraAuthenticationMode: '',
+        extraAuthenticationMode: 'Bearer',
 
         timeout: TimeoutEnum.DEFAULT,
 

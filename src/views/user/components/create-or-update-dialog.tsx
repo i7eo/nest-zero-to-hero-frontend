@@ -1,6 +1,6 @@
 import {
   forwardRef,
-  useCallback,
+  // useCallback,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -8,17 +8,22 @@ import {
 } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { useForm, useFormContext } from 'react-hook-form'
+import {
+  useForm,
+  //  useFormContext
+} from 'react-hook-form'
 import { capitalize, merge } from 'lodash-es'
 import { useSWRConfig } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { IDictionary} from './data-table';
-import { type IProfile, type IRole, type IUser } from './data-table'
 import type { PropsWithChildren } from 'react'
 // import useSWR from 'swr'
 // import useSWRMutation from 'swr/mutation'
 // import { Link, useNavigate } from 'react-router-dom'
 // import { Label } from '@/components/ui/label'
+import type { User } from '@/apis/user/model'
+import type { Profile } from '@/apis/profile/model'
+import type { Gender } from '@/apis/gender/model'
+import type { Role } from '@/apis/role/model'
 import { Input } from '@/components/ui/input'
 import {
   Dialog,
@@ -43,51 +48,59 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/utils/shadcn-ui.util'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { buildFetcher } from '@/utils/fetcher'
+import { GenderEnum } from '@/apis/gender/model'
+import { RoleEnum } from '@/apis/role/model'
 
-// const profileZodObject = z.object({
-//   id: z.string(),
-//   avator: z.string(),
-//   email: z.string().email({
-//     message: 'You have to enter correct email.',
-//   }),
-//   address: z.string(),
-//   gender: z.number(),
-// }) satisfies z.ZodType<IProfile>
+// see: https://github.com/colinhacks/zod/discussions/2125#discussioncomment-7452235
+function getZodEnumValues<T extends Record<string, any>>(obj: T) {
+  return Object.values(obj) as [(typeof obj)[keyof T]]
+}
 
-// const profileFormSchema = profileZodObject.omit({
-//   id: true
-// })
+const genderZod = z.enum(getZodEnumValues(GenderEnum), {
+  errorMap: () => ({
+    message: 'Please select your gender',
+  }),
+}) satisfies z.ZodType<Gender['value']>
 
-// const roleZodObject = z.object({
-//   id: z.string(),
-//   name: z.string(),
-// }) satisfies z.ZodType<IRole>
+const roleZod = z.enum(getZodEnumValues(RoleEnum), {
+  errorMap: () => ({
+    message: 'Please select your role',
+  }),
+}) satisfies z.ZodType<Role['value']>
 
-// const roleFormSchema = roleZodObject.omit({
-//   id: true
-// })
-
-type IUserFormSchema = Omit<IUser, 'id'>
+const profileZod = z.object({
+  gender: genderZod,
+  avator: z.string(),
+  email: z.string().email({
+    message: 'You have to enter correct email.',
+  }),
+  address: z.string(),
+}) satisfies z.ZodType<Omit<Profile, 'id' | 'user' | 'createdAt' | 'updatedAt'>>
 
 const formSchema = z.object({
   username: z.string(),
   password: z.string(),
-  profile: z.object({
-    avator: z.string(),
-    email: z.string().email({
-      message: 'You have to enter correct email.',
-    }),
-    address: z.string(),
-    gender: z.string(),
-  }),
-  roles: z.string().array(),
-}) satisfies z.ZodType<IUserFormSchema>
+  profile: profileZod,
+  roles: roleZod.array(),
+}) satisfies z.ZodType<
+  Omit<
+    User,
+    | 'id'
+    | 'profile'
+    | 'logs'
+    | 'roles'
+    | 'createdAt'
+    | 'updatedAt'
+    | 'afterInsert'
+    | 'afterRemove'
+  >
+>
 
 interface CreateOrUpdateFormProps extends PropsWithChildren {
   type: 'create' | 'update'
-  user?: IUser
-  genders: IDictionary[]
-  roles: IDictionary[]
+  user?: User
+  genders: Gender[]
+  roles: Role[]
 }
 
 const CreateOrUpdateForm = forwardRef<
@@ -103,9 +116,9 @@ const CreateOrUpdateForm = forwardRef<
       avator: '',
       email: '',
       address: '',
-      gender: '0',
+      gender: GenderEnum.female,
     },
-    roles: ['5'],
+    roles: [RoleEnum.guest],
   }
   let fetchUrlSuffix = ''
 
@@ -333,9 +346,9 @@ const CreateOrUpdateForm = forwardRef<
 
 interface CreateOrUpdateDialogProps extends PropsWithChildren {
   type: 'create' | 'update'
-  user?: IUser
-  genders: IDictionary[]
-  roles: IDictionary[]
+  user?: User
+  genders: Gender[]
+  roles: Role[]
 }
 
 const CreateOrUpdateDialog: React.FC<CreateOrUpdateDialogProps> = ({

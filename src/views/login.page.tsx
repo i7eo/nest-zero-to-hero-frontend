@@ -1,9 +1,8 @@
-import { useRef } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 // import useSWR from 'swr'
-import useSWRMutation from 'swr/mutation'
+// import useSWRMutation from 'swr/mutation'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,7 +18,7 @@ import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/utils/shadcn-ui.util'
 import { API__SIGNIN } from '@/apis/auth'
-import { Toast } from '@/components/ui/toast'
+import { useToast } from '@/components/ui/use-toast'
 
 const formSchema = z.object({
   // email: z.string().email({
@@ -34,26 +33,26 @@ const formSchema = z.object({
   remember: z.boolean().default(false).optional(),
 })
 
-async function sendRequest(
-  url: string,
-  { arg }: { arg: z.infer<typeof formSchema> },
-) {
-  return fetch(url, {
-    method: 'POST',
-    body: JSON.stringify(arg),
-  }).then((res) => res.json())
-}
+// async function sendRequest(
+//   url: string,
+//   { arg }: { arg: z.infer<typeof formSchema> },
+// ) {
+//   return fetch(url, {
+//     method: 'POST',
+//     body: JSON.stringify(arg),
+//   }).then((res) => res.json())
+// }
 
 function LoginForm() {
   // const { data, error, isLoading, mutate } = useSWR('/api/v1/user/list')
   // console.log(data)
   // console.log(error)
   // console.log(isLoading)
-  const savedToastRef = useRef<typeof Toast | null>(null)
+  const { toast } = useToast()
 
   const navigate = useNavigate()
 
-  const { trigger } = useSWRMutation('/api/v1/auth/signin', sendRequest)
+  // const { trigger } = useSWRMutation('/api/v1/auth/signin', sendRequest)
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -74,85 +73,88 @@ function LoginForm() {
 
     // trigger(values)
     const result = await API__SIGNIN(values)
-    if (result && result.access_token) {
-      localStorage.setItem('Token', JSON.stringify(result))
-      savedToastRef.current?.publish()
+    if (result && result.data && result.data.access_token) {
+      localStorage.setItem('Token', JSON.stringify(result.data.access_token))
+      toast({
+        title: 'Scheduled: Catch up',
+        description: 'Login successfully!',
+      })
       navigate('/')
     } else {
+      localStorage.removeItem('Token')
+      toast({
+        title: 'Scheduled: Catch up',
+        description: 'Login failed...',
+      })
     }
   }
 
   return (
-    <>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className={cn(
-            'w-10/12 space-y-4 rounded-lg border p-4 shadow-sm sm:w-6/12 lg:w-4/12 xl:w-[500px]',
-          )}
-        >
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>用户名</FormLabel>
-                <FormControl>
-                  <Input placeholder="请输入用户名" {...field} />
-                </FormControl>
-                {/* <FormDescription>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={cn(
+          'w-10/12 space-y-4 rounded-lg border p-4 shadow-sm sm:w-6/12 lg:w-4/12 xl:w-[500px]',
+        )}
+      >
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>用户名</FormLabel>
+              <FormControl>
+                <Input placeholder="请输入用户名" {...field} />
+              </FormControl>
+              {/* <FormDescription>
                 This is your public display name.
               </FormDescription> */}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>密码</FormLabel>
-                <FormControl>
-                  <Input placeholder="请输入密码" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="remember"
-            render={({ field }) => (
-              <FormItem
-                className={cn('inline-flex items-center justify-center')}
-              >
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className={cn('!mt-0 ml-2')}>记住我</FormLabel>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className={cn('flex flex-col gap-4')}>
-            <Button
-              type="submit"
-              className={cn('bg-indigo-600 hover:bg-indigo-500')}
-            >
-              登录
-            </Button>
-            <Button asChild variant={'outline'}>
-              <Link to={'/register'}>注册</Link>
-            </Button>
-          </div>
-        </form>
-      </Form>
-      <Toast ref={savedToastRef}>Login successfully!</Toast>
-    </>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>密码</FormLabel>
+              <FormControl>
+                <Input placeholder="请输入密码" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="remember"
+          render={({ field }) => (
+            <FormItem className={cn('inline-flex items-center justify-center')}>
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <FormLabel className={cn('!mt-0 ml-2')}>记住我</FormLabel>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className={cn('flex flex-col gap-4')}>
+          <Button
+            type="submit"
+            className={cn('bg-indigo-600 hover:bg-indigo-500')}
+          >
+            登录
+          </Button>
+          <Button asChild variant={'outline'}>
+            <Link to={'/register'}>注册</Link>
+          </Button>
+        </div>
+      </form>
+    </Form>
   )
 }
 

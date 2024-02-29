@@ -17,6 +17,9 @@ import type {
   SortingState,
   VisibilityState,
 } from '@tanstack/react-table'
+import type { Gender } from '@/apis/gender/model'
+import type { Role } from '@/apis/role/model'
+import type { User } from '@/apis/user/model'
 import {
   Tooltip,
   TooltipContent,
@@ -47,60 +50,43 @@ import {
 } from '@/components/ui/table'
 import { DialogTrigger } from '@/components/ui/dialog'
 import { AlertDialogTrigger } from '@/components/ui/alert-dialog'
-
-export interface IDictionary {
-  id: string
-  label: string
-  value: string
-}
-
-export interface IUser {
-  id: string
-  username: string
-  password: string
-  profile: IProfile
-  roles: string[]
-}
-
-export interface IProfile {
-  // id: string
-  avator: string
-  email: string
-  address: string
-  gender: string
-}
-
-// export interface IRole {
-//   // id: string
-//   // label: string
-//   value: string
-// }
+import { ApiPathEnum as ApiUserPathEnum, ApiUsersRead } from '@/apis/user'
+import { ApiPathEnum as ApiGenderPathEnum, ApiGendersRead } from '@/apis/gender'
+import { ApiPathEnum as ApiRolePathEnum, ApiRolesRead } from '@/apis/role'
 
 export interface IDataTableProps {}
 
 export const DataTable: React.FC<IDataTableProps> = () => {
-  const { data: dictGenders, isLoading: loadingGenders } = useSWR(
-    '/api/v1/dict/genders',
+  const { data: ApiGendersReadResult, isLoading: loadingGenders } = useSWR(
+    ApiGenderPathEnum.genders,
+    ApiGendersRead,
   )
-  const genders: IDictionary[] = dictGenders
-
-  const { data: dictRoles, isLoading: loadingRoles } =
-    useSWR('/api/v1/dict/roles')
-  const roles: IDictionary[] = dictRoles
-
-  const { data: result, isLoading: loadingUsers } = useSWR('/api/v1/users')
-  let users: any[] = result
-  if (users) {
-    users = users.map((user: any) => ({
-      ...user,
-      roles: user.roles.map((role: any) => role.value),
-    })) as IUser[]
+  let genders: Gender[] = []
+  if (ApiGendersReadResult?.data) {
+    genders = ApiGendersReadResult.data
   }
-  // console.log(genders, roles, users)
+
+  const { data: ApiRolesReadResult, isLoading: loadingRoles } = useSWR(
+    ApiRolePathEnum,
+    ApiRolesRead,
+  )
+  let roles: Role[] = []
+  if (ApiRolesReadResult?.data) {
+    roles = ApiRolesReadResult.data
+  }
+
+  const { data: ApiUsersReadResult, isLoading: loadingUsers } = useSWR(
+    ApiUserPathEnum.users,
+    ApiUsersRead,
+  )
+  let users: User[] = []
+  if (ApiUsersReadResult?.data) {
+    users = ApiUsersReadResult.data
+  }
 
   const isLoaded = !loadingUsers && !loadingGenders && !loadingRoles
 
-  const columns = React.useMemo<ColumnDef<IUser>[]>(
+  const columns = React.useMemo<ColumnDef<User>[]>(
     () => [
       {
         id: 'select',
@@ -135,13 +121,15 @@ export const DataTable: React.FC<IDataTableProps> = () => {
         accessorFn: (originalRow) => originalRow.roles,
         header: 'Role',
         cell: ({ row }) => {
-          const roleValues = row.original.roles
+          const _roles = row.original.roles
 
           return (
             <div className="lowercase">
-              {roles && roleValues
+              {roles && _roles
                 ? roles
-                    .filter((role) => roleValues.includes(role.value))
+                    .filter((role) =>
+                      _roles.some((_role) => role.value === _role.value),
+                    )
                     .map((role) => role.label)
                     .join(', ')
                 : null}
@@ -153,15 +141,18 @@ export const DataTable: React.FC<IDataTableProps> = () => {
         accessorKey: 'gender',
         accessorFn: (originalRow) => originalRow.profile.gender,
         header: 'Gender',
-        cell: ({ row }) => (
-          <div className="lowercase">
-            {genders && row.original.profile && row.original.profile.gender
-              ? genders.find(
-                  (gender) => gender.value === row.original.profile.gender,
-                )!.label
-              : null}
-          </div>
-        ),
+        cell: ({ row }) => {
+          const _gender = row.original.profile.gender
+
+          return (
+            <div className="lowercase">
+              {genders && _gender
+                ? genders.find((gender) => gender.value === _gender.value)!
+                    .label
+                : null}
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'avator',
