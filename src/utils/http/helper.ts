@@ -1,3 +1,4 @@
+import useUserStore from '@/stores/user.store'
 import { HTTP_DATA_TIME_DATE_FORMAT } from './const'
 
 export const isObject = (value: unknown): value is Record<any, any> =>
@@ -79,4 +80,9 @@ export function setObjToUrlParams(baseUrl: string, obj: any): string {
   return /\?$/.test(baseUrl)
     ? baseUrl + parameters
     : baseUrl.replace(/\/?$/, '?') + parameters
+}
+
+export function getToken() {
+  const token = useUserStore.getState().token ?? null
+  return token
 }
