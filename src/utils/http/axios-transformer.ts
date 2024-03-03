@@ -167,7 +167,6 @@ export function AxiosTransformers() {
       //   ? JSON.parse(localStorage.getItem('Token')!)
       //   : null
       const token = getToken()
-      console.log(token)
       if (token && (config as Record<string, any>)?.extraOptions?.withToken) {
         // jwt token
         ;(config as Record<string, any>).headers.Authorization = options!
