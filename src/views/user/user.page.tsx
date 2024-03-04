@@ -41,7 +41,7 @@ import { DataTable } from './components/data-table'
 //   )
 // }
 
-const UserPage: React.FC = () => {
+const PageUser: React.FC = () => {
   return (
     <section className="page-user grow px-4">
       <DataTable />
@@ -49,4 +49,4 @@ const UserPage: React.FC = () => {
   )
 }
 
-export default UserPage
+export default PageUser

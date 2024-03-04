@@ -55,51 +55,30 @@ import { RoleEnum } from '@/apis/role/model'
 function getZodEnumValues<T extends Record<string, any>>(obj: T) {
   return Object.values(obj) as [(typeof obj)[keyof T]]
 }
+function getZodEnumKeys<T extends Record<string, any>>(obj: T) {
+  return Object.keys(obj) as [(typeof obj)[keyof T]]
+}
 
-const genderZod = z.enum(getZodEnumValues(GenderEnum), {
-  errorMap: () => ({
-    message: 'Please select your gender',
-  }),
-}) satisfies z.ZodType<Gender['value']>
-
-const roleZod = z.enum(getZodEnumValues(RoleEnum), {
+const roleValueZod = z.enum(getZodEnumValues(RoleEnum), {
   errorMap: () => ({
     message: 'Please select your role',
   }),
 }) satisfies z.ZodType<Role['value']>
-
-const profileZod = z.object({
-  gender: genderZod,
-  avator: z.string(),
-  email: z.string().email({
-    message: 'You have to enter correct email.',
+const roleLabelZod = z.enum(getZodEnumKeys(RoleEnum), {
+  errorMap: () => ({
+    message: 'Please select your role',
   }),
-  address: z.string(),
-}) satisfies z.ZodType<Omit<Profile, 'id' | 'gender' | 'user' | 'createdAt' | 'updatedAt'>>
+}) satisfies z.ZodType<Role['label']>
+
 
 const formSchema = z.object({
-  username: z.string(),
-  password: z.string(),
-  profile: profileZod,
-  roles: roleZod.array(),
-}) satisfies z.ZodType<
-  Omit<
-    User,
-    | 'id'
-    | 'profile'
-    | 'logs'
-    | 'roles'
-    | 'createdAt'
-    | 'updatedAt'
-    | 'afterInsert'
-    | 'afterRemove'
-  >
->
+  label: roleLabelZod,
+  value: roleValueZod,
+}) satisfies z.ZodType<Omit<Role, 'id' | 'value' | 'createdAt' | 'updatedAt' | 'users'>>
 
 interface CreateOrUpdateFormProps extends PropsWithChildren {
   type: 'create' | 'update'
-  user?: User
-  genders: Gender[]
+  role?: Role
   roles: Role[]
 }
 
@@ -108,27 +87,20 @@ const CreateOrUpdateForm = forwardRef<
     onSubmit(): Promise<void>
   },
   CreateOrUpdateFormProps
->(({ type, user, genders, roles }, ref) => {
+>(({ type, role, roles }, ref) => {
   let defaultValues: z.infer<typeof formSchema> = {
-    username: '',
-    password: '',
-    profile: {
-      avator: '',
-      email: '',
-      address: '',
-      gender: GenderEnum.female,
-    },
-    roles: [RoleEnum.guest],
+    label: '',
+    value: '',
   }
   let fetchUrlSuffix = ''
 
-  if (user) {
-    defaultValues = merge(defaultValues, { ...user })
-    fetchUrlSuffix += `/${user.id}`
+  if (role) {
+    defaultValues = merge(defaultValues, { ...role })
+    fetchUrlSuffix += `/${role.id}`
   }
 
   const fetchType = type === 'create' ? 'POST' : 'PATCH'
-  const fetchUrl = `/api/v1/users${fetchUrlSuffix}`
+  const fetchUrl = `/api/v1/roles${fetchUrlSuffix}`
   const { mutate } = useSWRConfig()
 
   const { trigger } = useSWRMutation(
@@ -153,7 +125,7 @@ const CreateOrUpdateForm = forwardRef<
     // console.log(values)
     try {
       const result = await trigger(values)
-      mutate('/api/v1/users')
+      mutate('/api/v1/roles')
 
       if (result) {
         return true
@@ -178,16 +150,12 @@ const CreateOrUpdateForm = forwardRef<
       <form onSubmit={handleSubmit} className={cn('space-y-4')}>
         <FormField
           control={form.control}
-          name="username"
+          name="label"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Please enter username"
-                  {...field}
-                  type="email"
-                />
+                <Input placeholder="Please enter name" {...field} />
               </FormControl>
               {/* <FormDescription>
               This is your public display name.
@@ -198,27 +166,10 @@ const CreateOrUpdateForm = forwardRef<
         />
         <FormField
           control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Please enter password"
-                  {...field}
-                  type="password"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="roles"
+          name="value"
           render={() => (
             <FormItem>
-              <FormLabel>Role</FormLabel>
+              <FormLabel>Value</FormLabel>
               <div className="flex flex-row space-x-3 space-y-0">
                 {roles.map((role) => (
                   <FormField
@@ -259,86 +210,6 @@ const CreateOrUpdateForm = forwardRef<
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="profile.gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gender</FormLabel>
-              <FormControl className="flex flex-row space-x-3 space-y-0">
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  {genders.map((gender) => (
-                    <FormItem
-                      key={gender.id}
-                      className="flex flex-row items-center space-x-3 space-y-0"
-                    >
-                      <FormControl>
-                        <RadioGroupItem value={gender.value} />
-                      </FormControl>
-                      <FormLabel className="font-normal">
-                        {gender.label}
-                      </FormLabel>
-                    </FormItem>
-                  ))}
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="profile.avator"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Avator</FormLabel>
-              <FormControl>
-                <Input placeholder="Please enter avator" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="profile.email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Please enter email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="profile.address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Address</FormLabel>
-              <FormControl>
-                <Input placeholder="Please enter address" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* <div className={cn('flex flex-col gap-4')}>
-          <Button asChild variant={'outline'}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            className={cn('bg-indigo-600 hover:bg-indigo-500')}
-          >
-            Continue
-          </Button>
-        </div> */}
       </form>
     </Form>
   )
@@ -346,15 +217,13 @@ const CreateOrUpdateForm = forwardRef<
 
 interface CreateOrUpdateDialogProps extends PropsWithChildren {
   type: 'create' | 'update'
-  user?: User
-  genders: Gender[]
+  role?: Role
   roles: Role[]
 }
 
 const CreateOrUpdateDialog: React.FC<CreateOrUpdateDialogProps> = ({
   type,
-  user,
-  genders,
+  role,
   roles,
   children,
 }) => {
@@ -368,12 +237,11 @@ const CreateOrUpdateDialog: React.FC<CreateOrUpdateDialogProps> = ({
       <CreateOrUpdateForm
         ref={formRef}
         type={type}
-        user={user}
-        genders={genders}
+        role={role}
         roles={roles}
       />
     ),
-    [formRef, type, user, genders, roles],
+    [formRef, type, role, roles],
   )
   const handleCancel = () => {
     setOpen(false)

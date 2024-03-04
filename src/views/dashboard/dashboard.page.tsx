@@ -4,7 +4,7 @@ import ReactLogo from '@/components/logo'
 import { useCountStore } from '@/stores/app.store'
 import { useDataDispatch, useDataStore } from '@/stores/datasource.store'
 
-const HomePage: React.FC = () => {
+const PageDashboard: React.FC = () => {
   const countStore = useCountStore()
   const dataState = useDataStore()
   const dataDispatch = useDataDispatch()
@@ -58,4 +58,4 @@ const HomePage: React.FC = () => {
   )
 }
 
-export default HomePage
+export default PageDashboard

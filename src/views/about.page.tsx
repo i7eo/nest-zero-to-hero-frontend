@@ -1,12 +1,12 @@
 import { useCountStore } from '@/stores/app.store'
 import { useDataStore } from '@/stores/datasource.store'
 
-const AboutPage: React.FC = () => {
+const PageAbout: React.FC = () => {
   const zustandCount = useCountStore((state) => state.count)
   const dataState = useDataStore()
 
   return (
-    <>
+    <section className="page-about">
       <h2>About</h2>
       <h2>
         <span>zustand count: </span>
@@ -16,8 +16,8 @@ const AboutPage: React.FC = () => {
         <span>mini redux count: </span>
         <span>{dataState.data}</span>
       </h2>
-    </>
+    </section>
   )
 }
 
-export default AboutPage
+export default PageAbout

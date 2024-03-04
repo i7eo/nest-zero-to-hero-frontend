@@ -53,7 +53,7 @@ function LoginForm() {
 
   const navigate = useNavigate()
 
-  const setToken = useUserStore(state => state.setToken)
+  const setToken = useUserStore((state) => state.setToken)
 
   // const { trigger } = useSWRMutation('/api/v1/auth/signin', sendRequest)
 
@@ -162,12 +162,14 @@ function LoginForm() {
   )
 }
 
-const LoginPage: React.FC = () => {
+const PageLogin: React.FC = () => {
   return (
-    <section className={cn('flex h-full items-center justify-center')}>
+    <section
+      className={`${cn('flex h-full items-center justify-center')} page-login`}
+    >
       <LoginForm />
     </section>
   )
 }
 
-export default LoginPage
+export default PageLogin

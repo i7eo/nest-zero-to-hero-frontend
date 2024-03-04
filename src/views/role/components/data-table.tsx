@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useMemo, useState } from 'react'
 import {
   flexRender,
   getCoreRowModel,
@@ -7,7 +7,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ArrowUpDown, Columns, MoreHorizontal, UserPlus } from 'lucide-react'
+import { Columns, MoreHorizontal, UserPlus } from 'lucide-react'
 import useSWR from 'swr'
 import CreateOrUpdateDialog from './create-or-update-dialog'
 import DeleteDialog from './delete-dialog'
@@ -17,9 +17,7 @@ import type {
   SortingState,
   VisibilityState,
 } from '@tanstack/react-table'
-import type { Gender } from '@/apis/gender/model'
 import type { Role } from '@/apis/role/model'
-import type { User } from '@/apis/user/model'
 import {
   Tooltip,
   TooltipContent,
@@ -50,43 +48,25 @@ import {
 } from '@/components/ui/table'
 import { DialogTrigger } from '@/components/ui/dialog'
 import { AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { ApiPathEnum as ApiUserPathEnum, ApiUsersRead } from '@/apis/user'
-import { ApiPathEnum as ApiGenderPathEnum, ApiGendersRead } from '@/apis/gender'
 import { ApiPathEnum as ApiRolePathEnum, ApiRolesRead } from '@/apis/role'
 
 export interface IDataTableProps {}
 
 export const DataTable: React.FC<IDataTableProps> = () => {
-  const { data: ApiGendersReadResult, isLoading: loadingGenders } = useSWR(
-    ApiGenderPathEnum.genders,
-    ApiGendersRead,
-  )
-  let genders: Gender[] = []
-  if (ApiGendersReadResult?.data) {
-    genders = ApiGendersReadResult.data
-  }
-
   const { data: ApiRolesReadResult, isLoading: loadingRoles } = useSWR(
     ApiRolePathEnum,
     ApiRolesRead,
   )
-  let roles: Role[] = []
-  if (ApiRolesReadResult?.data) {
-    roles = ApiRolesReadResult.data
-  }
+  const roles = useMemo<Role[]>(() => {
+    if (ApiRolesReadResult?.data) {
+      return ApiRolesReadResult.data
+    }
+    return []
+  }, [ApiRolesReadResult?.data])
 
-  const { data: ApiUsersReadResult, isLoading: loadingUsers } = useSWR(
-    ApiUserPathEnum.users,
-    ApiUsersRead,
-  )
-  let users: User[] = []
-  if (ApiUsersReadResult?.data) {
-    users = ApiUsersReadResult.data
-  }
+  const isLoaded = !loadingRoles
 
-  const isLoaded = !loadingUsers && !loadingGenders && !loadingRoles
-
-  const columns = React.useMemo<ColumnDef<User>[]>(
+  const columns = useMemo<ColumnDef<Role>[]>(
     () => [
       {
         id: 'select',
@@ -110,99 +90,20 @@ export const DataTable: React.FC<IDataTableProps> = () => {
         enableHiding: false,
       },
       {
-        accessorKey: 'username',
-        header: 'Username',
+        accessorKey: 'label',
+        header: 'Name',
         cell: ({ row }) => (
-          <div className="capitalize">{row.getValue('username')}</div>
+          <div className="capitalize">{row.getValue('label')}</div>
         ),
       },
       {
-        accessorKey: 'roles',
-        accessorFn: (originalRow) => originalRow.roles,
-        header: 'Role',
+        accessorKey: 'value',
+        accessorFn: (originalRow) => originalRow.value,
+        header: 'Auth',
         cell: ({ row }) => {
-          const _roles = row.original.roles
+          const _value = row.original.value
 
-          return (
-            <div className="lowercase">
-              {roles && _roles
-                ? roles
-                    .filter((role) =>
-                      _roles.some((_role) => role.value === _role.value),
-                    )
-                    .map((role) => role.label)
-                    .join(', ')
-                : null}
-            </div>
-          )
-        },
-      },
-      {
-        accessorKey: 'gender',
-        accessorFn: (originalRow) => originalRow.profile.gender,
-        header: 'Gender',
-        cell: ({ row }) => {
-          const _gender = row.original.profile.gender
-
-          return (
-            <div className="lowercase">
-              {genders && _gender
-                ? genders.find((gender) => gender.value === _gender.value)!
-                    .label
-                : null}
-            </div>
-          )
-        },
-      },
-      {
-        accessorKey: 'avator',
-        accessorFn: (originalRow) => originalRow.profile.avator,
-        header: 'Avator',
-        cell: ({ row }) =>
-          row.original.profile && row.original.profile.avator ? (
-            <div className="lowercase">{row.original.profile.avator}</div>
-          ) : null,
-      },
-      {
-        accessorKey: 'email',
-        accessorFn: (originalRow) => originalRow.profile.email,
-        header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === 'asc')
-              }
-            >
-              Email
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          )
-        },
-        cell: ({ row }) =>
-          row.original.profile && row.original.profile.email ? (
-            <div className="lowercase">{row.original.profile.email}</div>
-          ) : null,
-      },
-      {
-        accessorKey: 'address',
-        accessorFn: (originalRow) => originalRow.profile.address,
-        header: () => <div className="text-right">Address</div>,
-        cell: ({ row }) => {
-          // const amount = parseFloat(row.getValue('amount'))
-
-          // // Format the amount as a dollar amount
-          // const formatted = new Intl.NumberFormat('en-US', {
-          //   style: 'currency',
-          //   currency: 'USD',
-          // }).format(amount)
-
-          // return <div className="text-right font-medium">{formatted}</div>
-          return row.original.profile && row.original.profile.address ? (
-            <div className="text-right font-medium">
-              {row.original.profile.address}
-            </div>
-          ) : null
+          return <div className="lowercase">{_value ?? null}</div>
         },
       },
       {
@@ -214,8 +115,6 @@ export const DataTable: React.FC<IDataTableProps> = () => {
           return (
             <CreateOrUpdateDialog
               type={'update'}
-              user={{ ...row.original }}
-              genders={genders}
               roles={roles}
             >
               <DeleteDialog userId={row.original.id}>
@@ -228,21 +127,12 @@ export const DataTable: React.FC<IDataTableProps> = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        navigator.clipboard.writeText(
-                          row.original.profile.email,
-                        )
-                      }
-                    >
-                      Copy user email
-                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DialogTrigger asChild>
-                      <DropdownMenuItem>Edit User</DropdownMenuItem>
+                      <DropdownMenuItem>Edit Role</DropdownMenuItem>
                     </DialogTrigger>
                     <AlertDialogTrigger asChild>
-                      <DropdownMenuItem>Delete User</DropdownMenuItem>
+                      <DropdownMenuItem>Delete Role</DropdownMenuItem>
                     </AlertDialogTrigger>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -254,16 +144,13 @@ export const DataTable: React.FC<IDataTableProps> = () => {
     ],
     [genders, roles],
   )
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  )
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = useState({})
 
   const table = useReactTable({
-    data: users,
+    data: roles,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,

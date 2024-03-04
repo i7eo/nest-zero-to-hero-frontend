@@ -102,12 +102,16 @@ function LoginForm() {
   )
 }
 
-const RegisterPage: React.FC = () => {
+const PageRegister: React.FC = () => {
   return (
-    <section className={cn('flex h-full items-center justify-center')}>
+    <section
+      className={`${cn(
+        'flex h-full items-center justify-center',
+      )} page-register`}
+    >
       <LoginForm />
     </section>
   )
 }
 
-export default RegisterPage
+export default PageRegister

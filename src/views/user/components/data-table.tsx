@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useMemo, useState } from 'react'
 import {
   flexRender,
   getCoreRowModel,
@@ -61,32 +61,38 @@ export const DataTable: React.FC<IDataTableProps> = () => {
     ApiGenderPathEnum.genders,
     ApiGendersRead,
   )
-  let genders: Gender[] = []
-  if (ApiGendersReadResult?.data) {
-    genders = ApiGendersReadResult.data
-  }
+  const genders = useMemo<Gender[]>(() => {
+    if (ApiGendersReadResult?.data) {
+      return ApiGendersReadResult.data
+    }
+    return []
+  }, [ApiGendersReadResult?.data])
 
   const { data: ApiRolesReadResult, isLoading: loadingRoles } = useSWR(
     ApiRolePathEnum,
     ApiRolesRead,
   )
-  let roles: Role[] = []
-  if (ApiRolesReadResult?.data) {
-    roles = ApiRolesReadResult.data
-  }
+  const roles = useMemo<Role[]>(() => {
+    if (ApiRolesReadResult?.data) {
+      return ApiRolesReadResult.data
+    }
+    return []
+  }, [ApiRolesReadResult?.data])
 
   const { data: ApiUsersReadResult, isLoading: loadingUsers } = useSWR(
     ApiUserPathEnum.users,
     ApiUsersRead,
   )
-  let users: User[] = []
-  if (ApiUsersReadResult?.data) {
-    users = ApiUsersReadResult.data
-  }
+  const users = useMemo<User[]>(() => {
+    if (ApiUsersReadResult?.data) {
+      return ApiUsersReadResult.data
+    }
+    return []
+  }, [ApiUsersReadResult?.data])
 
   const isLoaded = !loadingUsers && !loadingGenders && !loadingRoles
 
-  const columns = React.useMemo<ColumnDef<User>[]>(
+  const columns = useMemo<ColumnDef<User>[]>(
     () => [
       {
         id: 'select',
@@ -254,13 +260,10 @@ export const DataTable: React.FC<IDataTableProps> = () => {
     ],
     [genders, roles],
   )
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  )
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = useState({})
 
   const table = useReactTable({
     data: users,

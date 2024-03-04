@@ -1,6 +1,6 @@
 import { DataTable } from './components/data-table'
 
-const MenuPage: React.FC = () => {
+const PageMenu: React.FC = () => {
   return (
     <section className="page-menu grow px-4">
       <DataTable />
@@ -8,4 +8,4 @@ const MenuPage: React.FC = () => {
   )
 }
 
-export default MenuPage
+export default PageMenu
