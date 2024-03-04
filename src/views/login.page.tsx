@@ -19,6 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/utils/shadcn-ui.util'
 import { ApiSignin } from '@/apis/auth'
 import { useToast } from '@/components/ui/use-toast'
+import useUserStore from '@/stores/user.store'
 
 const formSchema = z.object({
   // email: z.string().email({
@@ -52,6 +53,8 @@ function LoginForm() {
 
   const navigate = useNavigate()
 
+  const setToken = useUserStore(state => state.setToken)
+
   // const { trigger } = useSWRMutation('/api/v1/auth/signin', sendRequest)
 
   // 1. Define your form.
@@ -74,7 +77,8 @@ function LoginForm() {
     // trigger(values)
     const result = await ApiSignin(values)
     if (result && result.data && result.data.access_token) {
-      localStorage.setItem('Token', JSON.stringify(result.data.access_token))
+      // localStorage.setItem('Token', JSON.stringify(result.data.access_token))
+      setToken(result.data.access_token)
       toast({
         title: 'Scheduled: Catch up',
         description: 'Login successfully!',

@@ -52,13 +52,11 @@ const useMenuStore = create(
       immer<IState & IAction>((set) => ({
         ...initialState,
 
-        reset: () => {
-          set(initialState)
-        },
+        reset: () => set(initialState),
       })),
       {
         name: 'menu-store',
-        storage: createJSONStorage(() => sessionStorage),
+        storage: createJSONStorage(() => localStorage),
       },
     ),
   ),

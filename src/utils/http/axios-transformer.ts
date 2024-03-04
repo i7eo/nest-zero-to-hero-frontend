@@ -2,6 +2,7 @@ import { checkHttpCode } from './check-http-code'
 import { RequestEnum } from './const'
 import {
   formatRequestDate,
+  getToken,
   isArray,
   isString,
   joinTimestamp,
@@ -163,10 +164,10 @@ export function AxiosTransformers() {
       // ::==================== i7eo：添加 /////  end  ///// ====================:: //
     },
     requestInterceptors(config, options) {
-      // const token = getToken()
-      const token = localStorage.getItem('Token')
-        ? JSON.parse(localStorage.getItem('Token')!)
-        : null
+      // const token = localStorage.getItem('Token')
+      //   ? JSON.parse(localStorage.getItem('Token')!)
+      //   : null
+      const token = getToken()
       if (token && (config as Record<string, any>)?.extraOptions?.withToken) {
         // jwt token
         ;(config as Record<string, any>).headers.Authorization = options!
