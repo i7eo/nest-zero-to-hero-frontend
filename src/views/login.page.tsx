@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/utils/shadcn-ui.util'
-import { API__SIGNIN } from '@/apis/auth'
+import { ApiSignin } from '@/apis/auth'
 import { useToast } from '@/components/ui/use-toast'
 
 const formSchema = z.object({
@@ -72,7 +72,7 @@ function LoginForm() {
     console.log(values)
 
     // trigger(values)
-    const result = await API__SIGNIN(values)
+    const result = await ApiSignin(values)
     if (result && result.data && result.data.access_token) {
       localStorage.setItem('Token', JSON.stringify(result.data.access_token))
       toast({

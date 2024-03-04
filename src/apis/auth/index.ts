@@ -1,18 +1,18 @@
 import type { ISignin } from './model'
 import { $http, type AxiosResult as IResult } from '@/utils/http'
 
-enum ApiEnum {
-  SIGNIN = 'auth/signin',
-  SIGNUP = 'auth/signup',
+enum ApiPathEnum {
+  signin = 'auth/signin',
+  signup = 'auth/signup',
 }
 
-export function API__SIGNIN(options: ISignin) {
+export function ApiSignin(options: ISignin) {
   return $http.post<
     IResult<{
       access_token: string
     }>
   >({
-    url: `/${ApiEnum.SIGNIN}`,
+    url: `/${ApiPathEnum.signin}`,
     data: options,
   })
 }
