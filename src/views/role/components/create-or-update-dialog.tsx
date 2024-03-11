@@ -49,111 +49,87 @@ import { cn } from '@/utils/shadcn-ui.util'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { buildFetcher } from '@/utils/fetcher'
 import { GenderEnum } from '@/apis/gender/model'
-import { RoleEnum } from '@/apis/role/model'
+import { RoleEnum, RoleEnumValue } from '@/apis/role/model'
 
 // see: https://github.com/colinhacks/zod/discussions/2125#discussioncomment-7452235
+function getZodEnumKeys<T extends Record<string, any>>(obj: T) {
+  return Object.keys(obj) as [keyof T]
+}
 function getZodEnumValues<T extends Record<string, any>>(obj: T) {
   return Object.values(obj) as [(typeof obj)[keyof T]]
 }
 
-const genderZod = z.enum(getZodEnumValues(GenderEnum), {
+const roleLabelZod = z.enum(getZodEnumKeys(RoleEnum), {
   errorMap: () => ({
-    message: 'Please select your gender',
+    message: 'Please select your role name',
   }),
-}) satisfies z.ZodType<Gender['value']>
+}) satisfies z.ZodType<Role['label']>
 
-const roleZod = z.enum(getZodEnumValues(RoleEnum), {
+const roleValueZod = z.enum(getZodEnumValues(RoleEnum), {
   errorMap: () => ({
-    message: 'Please select your role',
+    message: 'Please select your role value',
   }),
 }) satisfies z.ZodType<Role['value']>
 
-const profileZod = z.object({
-  gender: genderZod,
-  avator: z.string(),
-  email: z.string().email({
-    message: 'You have to enter correct email.',
-  }),
-  address: z.string(),
-}) satisfies z.ZodType<Omit<Profile, 'id' | 'gender' | 'user' | 'createdAt' | 'updatedAt'>>
-
 const formSchema = z.object({
-  username: z.string(),
-  password: z.string(),
-  profile: profileZod,
-  roles: roleZod.array(),
+  label: roleLabelZod,
+  value: roleValueZod
 }) satisfies z.ZodType<
   Omit<
-    User,
+    Role,
     | 'id'
-    | 'profile'
-    | 'logs'
-    | 'roles'
     | 'createdAt'
     | 'updatedAt'
-    | 'afterInsert'
-    | 'afterRemove'
+    | 'users'
   >
 >
 
 interface CreateOrUpdateFormProps extends PropsWithChildren {
   type: 'create' | 'update'
-  user?: User
-  genders: Gender[]
-  roles: Role[]
+  role?: Role
 }
+
+type FormSchema = Omit<Role, 'id' | 'createdAt' | 'updatedAt' | 'users'>
 
 const CreateOrUpdateForm = forwardRef<
   {
     onSubmit(): Promise<void>
   },
   CreateOrUpdateFormProps
->(({ type, user, genders, roles }, ref) => {
-  let defaultValues: z.infer<typeof formSchema> = {
-    username: '',
-    password: '',
-    profile: {
-      avator: '',
-      email: '',
-      address: '',
-      gender: GenderEnum.female,
-    },
-    roles: [RoleEnum.guest],
-  }
-  let fetchUrlSuffix = ''
-
-  if (user) {
-    defaultValues = merge(defaultValues, { ...user })
-    fetchUrlSuffix += `/${user.id}`
+>(({ type, role }, ref) => {
+  let defaultValues: Partial<FormSchema> = {
+    label: role?.label,
+    value: role?.value
   }
 
+  const fetchUrlSuffix = role ? `/${role.id}` : ''
   const fetchType = type === 'create' ? 'POST' : 'PATCH'
-  const fetchUrl = `/api/v1/users${fetchUrlSuffix}`
+  const fetchUrl = `/api/v1/roles${fetchUrlSuffix}`
   const { mutate } = useSWRConfig()
 
   const { trigger } = useSWRMutation(
     fetchUrl,
-    (url: string, { arg }: { arg: z.infer<typeof formSchema> }) =>
+    (url: string, { arg }: { arg: FormSchema }) =>
       buildFetcher(fetchType, url, {
         data: JSON.stringify(arg),
       }),
   )
 
   // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormSchema>({
     mode: 'onChange',
     resolver: zodResolver(formSchema),
     defaultValues,
   })
 
   // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: FormSchema) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     // console.log(values)
     try {
       const result = await trigger(values)
-      mutate('/api/v1/users')
+      mutate('/api/v1/roles')
 
       if (result) {
         return true
@@ -178,15 +154,14 @@ const CreateOrUpdateForm = forwardRef<
       <form onSubmit={handleSubmit} className={cn('space-y-4')}>
         <FormField
           control={form.control}
-          name="username"
+          name="label"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Rolename</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Please enter username"
+                  placeholder="Please enter rolename"
                   {...field}
-                  type="email"
                 />
               </FormControl>
               {/* <FormDescription>
@@ -198,147 +173,20 @@ const CreateOrUpdateForm = forwardRef<
         />
         <FormField
           control={form.control}
-          name="password"
+          name="value"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Rolevalue</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Please enter password"
+                  placeholder="Please enter rolevalue"
                   {...field}
-                  type="password"
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="roles"
-          render={() => (
-            <FormItem>
-              <FormLabel>Role</FormLabel>
-              <div className="flex flex-row space-x-3 space-y-0">
-                {roles.map((role) => (
-                  <FormField
-                    key={role.id}
-                    control={form.control}
-                    name="roles"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={
-                                !!field.value?.some(
-                                  (value) => value === role.value,
-                                )
-                              }
-                              onCheckedChange={(checked) => {
-                                return checked
-                                  ? field.onChange([...field.value, role.value])
-                                  : field.onChange(
-                                      field.value?.filter(
-                                        (value) => value !== role.value,
-                                      ),
-                                    )
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm font-normal">
-                            {role.label}
-                          </FormLabel>
-                        </FormItem>
-                      )
-                    }}
-                  />
-                ))}
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="profile.gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gender</FormLabel>
-              <FormControl className="flex flex-row space-x-3 space-y-0">
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  {genders.map((gender) => (
-                    <FormItem
-                      key={gender.id}
-                      className="flex flex-row items-center space-x-3 space-y-0"
-                    >
-                      <FormControl>
-                        <RadioGroupItem value={gender.value} />
-                      </FormControl>
-                      <FormLabel className="font-normal">
-                        {gender.label}
-                      </FormLabel>
-                    </FormItem>
-                  ))}
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="profile.avator"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Avator</FormLabel>
-              <FormControl>
-                <Input placeholder="Please enter avator" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="profile.email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Please enter email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="profile.address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Address</FormLabel>
-              <FormControl>
-                <Input placeholder="Please enter address" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* <div className={cn('flex flex-col gap-4')}>
-          <Button asChild variant={'outline'}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            className={cn('bg-indigo-600 hover:bg-indigo-500')}
-          >
-            Continue
-          </Button>
-        </div> */}
       </form>
     </Form>
   )
@@ -346,20 +194,16 @@ const CreateOrUpdateForm = forwardRef<
 
 interface CreateOrUpdateDialogProps extends PropsWithChildren {
   type: 'create' | 'update'
-  user?: User
-  genders: Gender[]
-  roles: Role[]
+  role?: Role
 }
 
 const CreateOrUpdateDialog: React.FC<CreateOrUpdateDialogProps> = ({
   type,
-  user,
-  genders,
-  roles,
+  role,
   children,
 }) => {
   const [open, setOpen] = useState(false)
-  const title = useMemo(() => `${capitalize(type)} User`, [type])
+  const title = useMemo(() => `${capitalize(type)} Role`, [type])
   const formRef = useRef<{
     onSubmit(): Promise<void>
   } | null>(null)
@@ -368,12 +212,10 @@ const CreateOrUpdateDialog: React.FC<CreateOrUpdateDialogProps> = ({
       <CreateOrUpdateForm
         ref={formRef}
         type={type}
-        user={user}
-        genders={genders}
-        roles={roles}
+        role={role}
       />
     ),
-    [formRef, type, user, genders, roles],
+    [formRef, type],
   )
   const handleCancel = () => {
     setOpen(false)

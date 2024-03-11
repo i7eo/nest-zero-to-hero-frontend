@@ -15,13 +15,13 @@ import { buildFetcher } from '@/utils/fetcher'
 // import { Button } from '@/components/ui/button'
 
 interface DeleteDialogProps extends PropsWithChildren {
-  userId: string
+  id: string
 }
 
-const DeleteDialog: React.FC<DeleteDialogProps> = ({ userId, children }) => {
+const DeleteDialog: React.FC<DeleteDialogProps> = ({ id, children }) => {
   const [open, setOpen] = useState(false)
   const { trigger } = useSWRMutation('/api/v1/users', (url: string) =>
-    buildFetcher('DELETE', `${url}/${userId}`),
+    buildFetcher('DELETE', `${url}/${id}`),
   )
 
   async function handleContinue() {

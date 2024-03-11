@@ -7,7 +7,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ArrowUpDown, Columns, MoreHorizontal, UserPlus } from 'lucide-react'
+import { ArrowUpDown, Columns, MoreHorizontal, Key } from 'lucide-react'
 import useSWR from 'swr'
 import CreateOrUpdateDialog from './create-or-update-dialog'
 import DeleteDialog from './delete-dialog'
@@ -17,9 +17,7 @@ import type {
   SortingState,
   VisibilityState,
 } from '@tanstack/react-table'
-import type { Gender } from '@/apis/gender/model'
 import type { Role } from '@/apis/role/model'
-import type { User } from '@/apis/user/model'
 import {
   Tooltip,
   TooltipContent,
@@ -50,22 +48,11 @@ import {
 } from '@/components/ui/table'
 import { DialogTrigger } from '@/components/ui/dialog'
 import { AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { ApiPathEnum as ApiUserPathEnum, ApiUsersRead } from '@/apis/user'
-import { ApiPathEnum as ApiGenderPathEnum, ApiGendersRead } from '@/apis/gender'
 import { ApiPathEnum as ApiRolePathEnum, ApiRolesRead } from '@/apis/role'
 
 export interface IDataTableProps {}
 
 export const DataTable: React.FC<IDataTableProps> = () => {
-  const { data: ApiGendersReadResult, isLoading: loadingGenders } = useSWR(
-    ApiGenderPathEnum.genders,
-    ApiGendersRead,
-  )
-  let genders: Gender[] = []
-  if (ApiGendersReadResult?.data) {
-    genders = ApiGendersReadResult.data
-  }
-
   const { data: ApiRolesReadResult, isLoading: loadingRoles } = useSWR(
     ApiRolePathEnum,
     ApiRolesRead,
@@ -75,185 +62,104 @@ export const DataTable: React.FC<IDataTableProps> = () => {
     roles = ApiRolesReadResult.data
   }
 
-  const { data: ApiUsersReadResult, isLoading: loadingUsers } = useSWR(
-    ApiUserPathEnum.users,
-    ApiUsersRead,
-  )
-  let users: User[] = []
-  if (ApiUsersReadResult?.data) {
-    users = ApiUsersReadResult.data
-  }
+  const isLoaded = !loadingRoles
 
-  const isLoaded = !loadingUsers && !loadingGenders && !loadingRoles
+  const columns: ColumnDef<Role>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) =>
+            table.toggleAllPageRowsSelected(!!value)
+          }
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'label',
+      header: 'Rolename',
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue('label')}</div>
+      ),
+    },
+    // {
+    //   accessorKey: 'roles',
+    //   accessorFn: (originalRow) => originalRow.roles,
+    //   header: 'Role',
+    //   cell: ({ row }) => {
+    //     const _roles = row.original.roles
 
-  const columns = React.useMemo<ColumnDef<User>[]>(
-    () => [
-      {
-        id: 'select',
-        header: ({ table }) => (
-          <Checkbox
-            checked={table.getIsAllPageRowsSelected()}
-            onCheckedChange={(value) =>
-              table.toggleAllPageRowsSelected(!!value)
-            }
-            aria-label="Select all"
-          />
-        ),
-        cell: ({ row }) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-          />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-      },
-      {
-        accessorKey: 'username',
-        header: 'Username',
-        cell: ({ row }) => (
-          <div className="capitalize">{row.getValue('username')}</div>
-        ),
-      },
-      {
-        accessorKey: 'roles',
-        accessorFn: (originalRow) => originalRow.roles,
-        header: 'Role',
-        cell: ({ row }) => {
-          const _roles = row.original.roles
+    //     return (
+    //       <div className="lowercase">
+    //         {roles && _roles
+    //           ? roles
+    //               .filter((role) =>
+    //                 _roles.some((_role) => role.value === _role.value),
+    //               )
+    //               .map((role) => role.label)
+    //               .join(', ')
+    //           : null}
+    //       </div>
+    //     )
+    //   },
+    // },
+    {
+      id: 'actions',
+      enableHiding: false,
+      cell: ({ row }) => {
+        // const payment = row.original
 
-          return (
-            <div className="lowercase">
-              {roles && _roles
-                ? roles
-                    .filter((role) =>
-                      _roles.some((_role) => role.value === _role.value),
-                    )
-                    .map((role) => role.label)
-                    .join(', ')
-                : null}
-            </div>
-          )
-        },
+        return (
+          <CreateOrUpdateDialog
+            type={'update'}
+            role={{ ...row.original }}
+          >
+            <DeleteDialog id={row.original.id}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      navigator.clipboard.writeText(
+                        row.original.label,
+                      )
+                    }
+                  >
+                    Copy role name
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem>Edit Role</DropdownMenuItem>
+                  </DialogTrigger>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem>Delete Role</DropdownMenuItem>
+                  </AlertDialogTrigger>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </DeleteDialog>
+          </CreateOrUpdateDialog>
+        )
       },
-      {
-        accessorKey: 'gender',
-        accessorFn: (originalRow) => originalRow.profile.gender,
-        header: 'Gender',
-        cell: ({ row }) => {
-          const _gender = row.original.profile.gender
+    },
+  ]
 
-          return (
-            <div className="lowercase">
-              {genders && _gender
-                ? genders.find((gender) => gender.value === _gender.value)!
-                    .label
-                : null}
-            </div>
-          )
-        },
-      },
-      {
-        accessorKey: 'avator',
-        accessorFn: (originalRow) => originalRow.profile.avator,
-        header: 'Avator',
-        cell: ({ row }) =>
-          row.original.profile && row.original.profile.avator ? (
-            <div className="lowercase">{row.original.profile.avator}</div>
-          ) : null,
-      },
-      {
-        accessorKey: 'email',
-        accessorFn: (originalRow) => originalRow.profile.email,
-        header: ({ column }) => {
-          return (
-            <Button
-              variant="ghost"
-              onClick={() =>
-                column.toggleSorting(column.getIsSorted() === 'asc')
-              }
-            >
-              Email
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-          )
-        },
-        cell: ({ row }) =>
-          row.original.profile && row.original.profile.email ? (
-            <div className="lowercase">{row.original.profile.email}</div>
-          ) : null,
-      },
-      {
-        accessorKey: 'address',
-        accessorFn: (originalRow) => originalRow.profile.address,
-        header: () => <div className="text-right">Address</div>,
-        cell: ({ row }) => {
-          // const amount = parseFloat(row.getValue('amount'))
-
-          // // Format the amount as a dollar amount
-          // const formatted = new Intl.NumberFormat('en-US', {
-          //   style: 'currency',
-          //   currency: 'USD',
-          // }).format(amount)
-
-          // return <div className="text-right font-medium">{formatted}</div>
-          return row.original.profile && row.original.profile.address ? (
-            <div className="text-right font-medium">
-              {row.original.profile.address}
-            </div>
-          ) : null
-        },
-      },
-      {
-        id: 'actions',
-        enableHiding: false,
-        cell: ({ row }) => {
-          // const payment = row.original
-
-          return (
-            <CreateOrUpdateDialog
-              type={'update'}
-              user={{ ...row.original }}
-              genders={genders}
-              roles={roles}
-            >
-              <DeleteDialog userId={row.original.id}>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        navigator.clipboard.writeText(
-                          row.original.profile.email,
-                        )
-                      }
-                    >
-                      Copy user email
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DialogTrigger asChild>
-                      <DropdownMenuItem>Edit User</DropdownMenuItem>
-                    </DialogTrigger>
-                    <AlertDialogTrigger asChild>
-                      <DropdownMenuItem>Delete User</DropdownMenuItem>
-                    </AlertDialogTrigger>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </DeleteDialog>
-            </CreateOrUpdateDialog>
-          )
-        },
-      },
-    ],
-    [genders, roles],
-  )
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -263,7 +169,7 @@ export const DataTable: React.FC<IDataTableProps> = () => {
   const [rowSelection, setRowSelection] = React.useState({})
 
   const table = useReactTable({
-    data: users,
+    data: roles,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -285,26 +191,26 @@ export const DataTable: React.FC<IDataTableProps> = () => {
     <div className="flex h-full w-full flex-col">
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
+          placeholder="Filter rolenames..."
+          value={(table.getColumn('label')?.getFilterValue() as string) ?? ''}
           onChange={(event) =>
-            table.getColumn('email')?.setFilterValue(event.target.value)
+            table.getColumn('label')?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
         <div className="flex items-center">
-          <CreateOrUpdateDialog type={'create'} genders={genders} roles={roles}>
+          <CreateOrUpdateDialog type={'create'}>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <DialogTrigger asChild>
                     <Button variant="outline" size="icon" className="mr-4">
-                      <UserPlus className="h-4 w-4" />
+                      <Key className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Create User</p>
+                  <p>Create Role</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

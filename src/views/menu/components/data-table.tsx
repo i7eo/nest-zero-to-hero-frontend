@@ -56,6 +56,8 @@ import { ApiPathEnum as ApiRolePathEnum, ApiRolesRead } from '@/apis/role'
 
 export interface IDataTableProps {}
 
+// 菜单名称、菜单路径、排序、操作权限、操作
+
 export const DataTable: React.FC<IDataTableProps> = () => {
   const { data: ApiGendersReadResult, isLoading: loadingGenders } = useSWR(
     ApiGenderPathEnum.genders,
