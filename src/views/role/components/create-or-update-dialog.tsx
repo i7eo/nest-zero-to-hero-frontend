@@ -58,25 +58,18 @@ function getZodEnumKeys<T extends Record<string, any>>(obj: T) {
 function getZodEnumValues<T extends Record<string, any>>(obj: T) {
   return Object.values(obj) as [(typeof obj)[keyof T]]
 }
-function getZodEnumKeys<T extends Record<string, any>>(obj: T) {
-  return Object.keys(obj) as [(typeof obj)[keyof T]]
-}
 
-<<<<<<< HEAD
 const roleLabelZod = z.enum(getZodEnumKeys(RoleEnum), {
   errorMap: () => ({
     message: 'Please select your role name',
   }),
 }) satisfies z.ZodType<Role['label']>
 
-=======
->>>>>>> eaeb55b123f4251c66ff2b4bdf767dfff2a973c5
 const roleValueZod = z.enum(getZodEnumValues(RoleEnum), {
   errorMap: () => ({
     message: 'Please select your role value',
   }),
 }) satisfies z.ZodType<Role['value']>
-<<<<<<< HEAD
 
 const formSchema = z.object({
   label: roleLabelZod,
@@ -90,27 +83,10 @@ const formSchema = z.object({
     | 'users'
   >
 >
-=======
-const roleLabelZod = z.enum(getZodEnumKeys(RoleEnum), {
-  errorMap: () => ({
-    message: 'Please select your role',
-  }),
-}) satisfies z.ZodType<Role['label']>
-
-
-const formSchema = z.object({
-  label: roleLabelZod,
-  value: roleValueZod,
-}) satisfies z.ZodType<Omit<Role, 'id' | 'value' | 'createdAt' | 'updatedAt' | 'users'>>
->>>>>>> eaeb55b123f4251c66ff2b4bdf767dfff2a973c5
 
 interface CreateOrUpdateFormProps extends PropsWithChildren {
   type: 'create' | 'update'
   role?: Role
-<<<<<<< HEAD
-=======
-  roles: Role[]
->>>>>>> eaeb55b123f4251c66ff2b4bdf767dfff2a973c5
 }
 
 type FormSchema = Omit<Role, 'id' | 'createdAt' | 'updatedAt' | 'users'>
@@ -120,23 +96,10 @@ const CreateOrUpdateForm = forwardRef<
     onSubmit(): Promise<void>
   },
   CreateOrUpdateFormProps
-<<<<<<< HEAD
 >(({ type, role }, ref) => {
   let defaultValues: Partial<FormSchema> = {
     label: role?.label,
     value: role?.value
-=======
->(({ type, role, roles }, ref) => {
-  let defaultValues: z.infer<typeof formSchema> = {
-    label: '',
-    value: '',
-  }
-  let fetchUrlSuffix = ''
-
-  if (role) {
-    defaultValues = merge(defaultValues, { ...role })
-    fetchUrlSuffix += `/${role.id}`
->>>>>>> eaeb55b123f4251c66ff2b4bdf767dfff2a973c5
   }
 
   const fetchUrlSuffix = role ? `/${role.id}` : ''
@@ -194,18 +157,12 @@ const CreateOrUpdateForm = forwardRef<
           name="label"
           render={({ field }) => (
             <FormItem>
-<<<<<<< HEAD
               <FormLabel>Rolename</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Please enter rolename"
                   {...field}
                 />
-=======
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Please enter name" {...field} />
->>>>>>> eaeb55b123f4251c66ff2b4bdf767dfff2a973c5
               </FormControl>
               {/* <FormDescription>
               This is your public display name.
@@ -217,7 +174,6 @@ const CreateOrUpdateForm = forwardRef<
         <FormField
           control={form.control}
           name="value"
-<<<<<<< HEAD
           render={({ field }) => (
             <FormItem>
               <FormLabel>Rolevalue</FormLabel>
@@ -227,47 +183,6 @@ const CreateOrUpdateForm = forwardRef<
                   {...field}
                 />
               </FormControl>
-=======
-          render={() => (
-            <FormItem>
-              <FormLabel>Value</FormLabel>
-              <div className="flex flex-row space-x-3 space-y-0">
-                {roles.map((role) => (
-                  <FormField
-                    key={role.id}
-                    control={form.control}
-                    name="roles"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={
-                                !!field.value?.some(
-                                  (value) => value === role.value,
-                                )
-                              }
-                              onCheckedChange={(checked) => {
-                                return checked
-                                  ? field.onChange([...field.value, role.value])
-                                  : field.onChange(
-                                      field.value?.filter(
-                                        (value) => value !== role.value,
-                                      ),
-                                    )
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm font-normal">
-                            {role.label}
-                          </FormLabel>
-                        </FormItem>
-                      )
-                    }}
-                  />
-                ))}
-              </div>
->>>>>>> eaeb55b123f4251c66ff2b4bdf767dfff2a973c5
               <FormMessage />
             </FormItem>
           )}
@@ -280,19 +195,11 @@ const CreateOrUpdateForm = forwardRef<
 interface CreateOrUpdateDialogProps extends PropsWithChildren {
   type: 'create' | 'update'
   role?: Role
-<<<<<<< HEAD
-=======
-  roles: Role[]
->>>>>>> eaeb55b123f4251c66ff2b4bdf767dfff2a973c5
 }
 
 const CreateOrUpdateDialog: React.FC<CreateOrUpdateDialogProps> = ({
   type,
   role,
-<<<<<<< HEAD
-=======
-  roles,
->>>>>>> eaeb55b123f4251c66ff2b4bdf767dfff2a973c5
   children,
 }) => {
   const [open, setOpen] = useState(false)
@@ -306,16 +213,9 @@ const CreateOrUpdateDialog: React.FC<CreateOrUpdateDialogProps> = ({
         ref={formRef}
         type={type}
         role={role}
-<<<<<<< HEAD
       />
     ),
     [formRef, type],
-=======
-        roles={roles}
-      />
-    ),
-    [formRef, type, role, roles],
->>>>>>> eaeb55b123f4251c66ff2b4bdf767dfff2a973c5
   )
   const handleCancel = () => {
     setOpen(false)
