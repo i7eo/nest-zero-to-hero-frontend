@@ -1,6 +1,6 @@
 import { DataTable } from './components/data-table'
 
-const RolePage: React.FC = () => {
+const PageRole: React.FC = () => {
   return (
     <section className="page-role grow px-4">
       <DataTable />
@@ -8,4 +8,4 @@ const RolePage: React.FC = () => {
   )
 }
 
-export default RolePage
+export default PageRole

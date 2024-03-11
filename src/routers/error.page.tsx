@@ -1,10 +1,10 @@
 import { useRouteError } from 'react-router-dom'
 
-const ErrorPage: React.FC = () => {
+const PageError: React.FC = () => {
   const error: any = useRouteError()
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center">
+    <section className="page-error flex h-full w-full flex-col items-center justify-center">
       <h1 className="text-2xl">Oops!</h1>
 
       <p>Sorry, an unexpected error has occurred.</p>
@@ -12,8 +12,8 @@ const ErrorPage: React.FC = () => {
       <p>
         <i>{error?.statusText || error?.message}</i>
       </p>
-    </div>
+    </section>
   )
 }
 
-export default ErrorPage
+export default PageError

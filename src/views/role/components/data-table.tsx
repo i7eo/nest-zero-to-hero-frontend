@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useMemo, useState } from 'react'
 import {
   flexRender,
   getCoreRowModel,
@@ -7,7 +7,11 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+<<<<<<< HEAD
 import { ArrowUpDown, Columns, MoreHorizontal, Key } from 'lucide-react'
+=======
+import { Columns, MoreHorizontal, UserPlus } from 'lucide-react'
+>>>>>>> eaeb55b123f4251c66ff2b4bdf767dfff2a973c5
 import useSWR from 'swr'
 import CreateOrUpdateDialog from './create-or-update-dialog'
 import DeleteDialog from './delete-dialog'
@@ -57,13 +61,16 @@ export const DataTable: React.FC<IDataTableProps> = () => {
     ApiRolePathEnum,
     ApiRolesRead,
   )
-  let roles: Role[] = []
-  if (ApiRolesReadResult?.data) {
-    roles = ApiRolesReadResult.data
-  }
+  const roles = useMemo<Role[]>(() => {
+    if (ApiRolesReadResult?.data) {
+      return ApiRolesReadResult.data
+    }
+    return []
+  }, [ApiRolesReadResult?.data])
 
   const isLoaded = !loadingRoles
 
+<<<<<<< HEAD
   const columns: ColumnDef<Role>[] = [
     {
       id: 'select',
@@ -167,6 +174,90 @@ export const DataTable: React.FC<IDataTableProps> = () => {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
+=======
+  const columns = useMemo<ColumnDef<Role>[]>(
+    () => [
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        accessorKey: 'label',
+        header: 'Name',
+        cell: ({ row }) => (
+          <div className="capitalize">{row.getValue('label')}</div>
+        ),
+      },
+      {
+        accessorKey: 'value',
+        accessorFn: (originalRow) => originalRow.value,
+        header: 'Auth',
+        cell: ({ row }) => {
+          const _value = row.original.value
+
+          return <div className="lowercase">{_value ?? null}</div>
+        },
+      },
+      {
+        id: 'actions',
+        enableHiding: false,
+        cell: ({ row }) => {
+          // const payment = row.original
+
+          return (
+            <CreateOrUpdateDialog
+              type={'update'}
+              roles={roles}
+            >
+              <DeleteDialog userId={row.original.id}>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DialogTrigger asChild>
+                      <DropdownMenuItem>Edit Role</DropdownMenuItem>
+                    </DialogTrigger>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem>Delete Role</DropdownMenuItem>
+                    </AlertDialogTrigger>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </DeleteDialog>
+            </CreateOrUpdateDialog>
+          )
+        },
+      },
+    ],
+    [genders, roles],
+  )
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = useState({})
+>>>>>>> eaeb55b123f4251c66ff2b4bdf767dfff2a973c5
 
   const table = useReactTable({
     data: roles,

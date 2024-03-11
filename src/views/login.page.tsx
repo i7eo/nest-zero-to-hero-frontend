@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/utils/shadcn-ui.util'
-import { API__SIGNIN } from '@/apis/auth'
+import { ApiSignin } from '@/apis/auth'
 import { useToast } from '@/components/ui/use-toast'
 import useUserStore from '@/stores/user.store'
 
@@ -53,7 +53,7 @@ function LoginForm() {
 
   const navigate = useNavigate()
 
-  const setToken = useUserStore(state => state.setToken)
+  const setToken = useUserStore((state) => state.setToken)
 
   // const { trigger } = useSWRMutation('/api/v1/auth/signin', sendRequest)
 
@@ -75,7 +75,7 @@ function LoginForm() {
     console.log(values)
 
     // trigger(values)
-    const result = await API__SIGNIN(values)
+    const result = await ApiSignin(values)
     if (result && result.data && result.data.access_token) {
       // localStorage.setItem('Token', JSON.stringify(result.data.access_token))
       setToken(result.data.access_token)
@@ -162,12 +162,14 @@ function LoginForm() {
   )
 }
 
-const LoginPage: React.FC = () => {
+const PageLogin: React.FC = () => {
   return (
-    <section className={cn('flex h-full items-center justify-center')}>
+    <section
+      className={`${cn('flex h-full items-center justify-center')} page-login`}
+    >
       <LoginForm />
     </section>
   )
 }
 
-export default LoginPage
+export default PageLogin

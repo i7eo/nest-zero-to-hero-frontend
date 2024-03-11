@@ -155,7 +155,8 @@ export function AxiosTransformers() {
         code: Number(code),
         message,
         errorMessageHandler(message) {
-          console.log(message)
+          // eslint-disable-next-line no-alert
+          window.alert(message)
         },
       })
 
@@ -212,7 +213,9 @@ export function AxiosTransformers() {
         code: error?.response?.status,
         message: msg,
         errorMessageHandler(_message) {
-          console.log(_message, errorMessageMode)
+          console.log(errorMessageMode)
+          // eslint-disable-next-line no-alert
+          window.alert(_message)
         },
       })
       return Promise.reject(error)

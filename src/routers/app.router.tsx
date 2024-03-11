@@ -5,12 +5,12 @@ import DefaultLayout from '@/layouts/default/default.layout'
 // import BlankLayout from '@/layout/blank/blank.layout'
 import ContentSkeleton from '@/components/skeleton/content.skeleton'
 
-const DashboardPage = lazy(() => import('@/views/dashboard/dashboard.page'))
-const AboutPage = lazy(() => import('@/views/about.page'))
-const UserPage = lazy(() => import('@/views/user/user.page'))
-const RolePage = lazy(() => import('@/views/role/role.page'))
-const MenuPage = lazy(() => import('@/views/menu/menu.page'))
-const ErrorPage = lazy(() => import('@/routers/error.page'))
+const PageDashboard = lazy(() => import('@/views/dashboard/dashboard.page'))
+const PageAbout = lazy(() => import('@/views/about.page'))
+const PageUser = lazy(() => import('@/views/user/user.page'))
+const PageRole = lazy(() => import('@/views/role/role.page'))
+const PageMenu = lazy(() => import('@/views/menu/menu.page'))
+const PageError = lazy(() => import('@/routers/error.page'))
 
 const LoginPage = lazy(() => import('@/views/login.page'))
 const RegisterPage = lazy(() => import('@/views/register.page'))
@@ -21,17 +21,17 @@ const router = createHashRouter([
   {
     path: '',
     element: <Navigate replace to={'/dashboard'} />,
-    errorElement: <ErrorPage />,
+    errorElement: <PageError />,
   },
   // {
   //   path: '/',
   //   element: <Navigate to="/login" />,
-  //   errorElement: <ErrorPage />,
+  //   errorElement: <PageError />,
   // },
   // {
   //   path: '*',
   //   element: <Navigate to="/404" />,
-  //   errorElement: <ErrorPage />,
+  //   errorElement: <PageError />,
   // },
   {
     path: '/login',
@@ -40,7 +40,7 @@ const router = createHashRouter([
         <LoginPage />
       </Suspense>
     ),
-    errorElement: <ErrorPage />,
+    errorElement: <PageError />,
   },
   {
     path: '/register',
@@ -49,12 +49,12 @@ const router = createHashRouter([
         <RegisterPage />
       </Suspense>
     ),
-    errorElement: <ErrorPage />,
+    errorElement: <PageError />,
   },
   {
     path: '/',
     element: <DefaultLayout />,
-    errorElement: <ErrorPage />,
+    errorElement: <PageError />,
     children: [
       {
         path: '/dashboard',
@@ -62,7 +62,7 @@ const router = createHashRouter([
           <Suspense
             fallback={<ContentSkeleton>{LOADING_MESSAGE}</ContentSkeleton>}
           >
-            <DashboardPage />
+            <PageDashboard />
           </Suspense>
         ),
       },
@@ -72,7 +72,7 @@ const router = createHashRouter([
           <Suspense
             fallback={<ContentSkeleton>{LOADING_MESSAGE}</ContentSkeleton>}
           >
-            <UserPage />
+            <PageUser />
           </Suspense>
         ),
       },
@@ -82,7 +82,7 @@ const router = createHashRouter([
           <Suspense
             fallback={<ContentSkeleton>{LOADING_MESSAGE}</ContentSkeleton>}
           >
-            <RolePage />
+            <PageRole />
           </Suspense>
         ),
       },
@@ -92,7 +92,7 @@ const router = createHashRouter([
           <Suspense
             fallback={<ContentSkeleton>{LOADING_MESSAGE}</ContentSkeleton>}
           >
-            <MenuPage />
+            <PageMenu />
           </Suspense>
         ),
       },
@@ -102,7 +102,7 @@ const router = createHashRouter([
           <Suspense
             fallback={<ContentSkeleton>{LOADING_MESSAGE}</ContentSkeleton>}
           >
-            <AboutPage />
+            <PageAbout />
           </Suspense>
         ),
       },

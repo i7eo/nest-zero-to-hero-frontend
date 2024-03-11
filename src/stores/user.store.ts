@@ -12,7 +12,7 @@ export interface IAction {
 }
 
 const initialState: IState = {
-    token: ''
+  token: '',
 }
 
 const useUserStore = create(
@@ -22,7 +22,7 @@ const useUserStore = create(
         ...initialState,
 
         reset: () => set(initialState),
-        setToken: (token: string) => set({ token })
+        setToken: (token: string) => set({ token }),
       })),
       {
         name: 'user-store',
